@@ -99,6 +99,9 @@ bool card::is_extra_deck_monster() const {
 		return false;
 	return true;
 }
+bool card::is_power_card() const {
+	return (data.type & TYPE_POWER) != 0;
+}
 template<typename T>
 void insert_value(std::vector<uint8_t>& vec, const T& _val) {
 	T val = _val;

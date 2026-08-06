@@ -457,6 +457,10 @@ bool field::process(Processors::SelectChain& arg) {
 	auto forced = arg.forced;
 	if(arg.step == 0) {
 		returns.set<int32_t>(0, -1);
+		//Power card chains cannot be responded to: auto-pass the window
+		if(!core.current_chain.empty() && (core.current_chain.back().flag & CHAIN_POWER)) {
+			return TRUE;
+		}
 		if((playerid == 1) && is_flag(DUEL_SIMPLE_AI)) {
 			if(core.select_chains.size() == 0)
 				returns.set<int32_t>(0, -1);

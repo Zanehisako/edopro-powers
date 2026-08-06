@@ -114,7 +114,7 @@ void field::add_card(uint8_t playerid, card* pcard, uint8_t location, uint8_t se
 		return;
 	if (!is_location_useable(playerid, location, sequence))
 		return;
-	if(pcard->is_extra_deck_monster()) {
+	if(pcard->is_extra_deck_monster() || pcard->is_power_card()) {
 		if(location & (LOCATION_HAND | LOCATION_DECK)) {
 			location = LOCATION_EXTRA;
 			pcard->sendto_param.position = POS_FACEDOWN_DEFENSE;
@@ -260,9 +260,11 @@ bool field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_t s
 		return false;
 	uint8_t preplayer = pcard->current.controler;
 	uint8_t presequence = pcard->current.sequence;
-	if(pcard->is_extra_deck_monster() && (location & (LOCATION_HAND | LOCATION_DECK))) {
-		location = LOCATION_EXTRA;
-		pcard->sendto_param.position = POS_FACEDOWN_DEFENSE;
+	if(pcard->is_extra_deck_monster() || pcard->is_power_card()) {
+		if(location & (LOCATION_HAND | LOCATION_DECK)) {
+			location = LOCATION_EXTRA;
+			pcard->sendto_param.position = POS_FACEDOWN_DEFENSE;
+		}
 	}
 	if (pcard->current.location) {
 		if (pcard->current.location == location && pcard->current.pzone == pzone) {

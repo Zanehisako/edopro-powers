@@ -3726,6 +3726,8 @@ bool field::process(Processors::AddChain& arg) {
 		clit.replace_op = 0;
 		if(phandler->current.location == LOCATION_HAND)
 			clit.flag |= CHAIN_HAND_EFFECT;
+		if(phandler->is_power_card())
+			clit.flag |= CHAIN_POWER;
 		core.current_chain.push_back(clit);
 		core.current_chain.back().applied_chain_counters = check_chain_counter(peffect, clit.triggering_player, clit.chain_count);
 		// triggered events which are not caused by RaiseEvent create relation with the handler

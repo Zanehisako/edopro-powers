@@ -56,26 +56,29 @@ OCGAPI void OCG_DuelNewCard(OCG_Duel ocg_duel, const OCG_NewCardInfo* info_ptr) 
 	auto* pduel = static_cast<duel*>(ocg_duel);
 	auto& game_field = *(pduel->game_field);
 	const auto& info = *info_ptr;
-	if(bit::popcnt(info.loc) != 1)
+	auto loc = info.loc;
+	if(loc == LOCATION_POWERS)
+		loc = LOCATION_EXTRA; //Power cards live in the extra pile engine-side
+	if(bit::popcnt(loc) != 1)
 		return;
 	auto duelist = info.duelist;
 	if(duelist == 0) {
-		if(game_field.is_location_useable(info.con, info.loc, info.seq)) {
+		if(game_field.is_location_useable(info.con, loc, info.seq)) {
 			card* pcard = pduel->new_card(info.code);
 			pcard->owner = info.team;
-			game_field.add_card(info.con, pcard, (uint8_t)info.loc, (uint8_t)info.seq);
+			game_field.add_card(info.con, pcard, (uint8_t)loc, (uint8_t)info.seq);
 			pcard->current.position = info.pos;
-			if(!(info.loc & LOCATION_ONFIELD) || (info.pos & POS_FACEUP)) {
+			if(!(loc & LOCATION_ONFIELD) || (info.pos & POS_FACEUP)) {
 				pcard->enable_field_effect(true);
 				game_field.adjust_instant();
 			}
-			if(info.loc & LOCATION_ONFIELD) {
-				if(info.loc == LOCATION_MZONE)
+			if(loc & LOCATION_ONFIELD) {
+				if(loc == LOCATION_MZONE)
 					pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
 			}
 		}
 	} else {
-		if(info.team > 1 || !(info.loc & (LOCATION_DECK | LOCATION_EXTRA)))
+		if(info.team > 1 || !(loc & (LOCATION_DECK | LOCATION_EXTRA)))
 			return;
 		card* pcard = pduel->new_card(info.code);
 		auto& player = game_field.player[info.team];

@@ -720,6 +720,7 @@ public:
 #define CHAIN_ACTIVATING		0x10
 #define CHAIN_HAND_TRIGGER		0x20
 //#define CHAIN_DECK_EFFECT		0x40
+#define CHAIN_POWER				0x80
 
 enum class CHAININFO {
 	TRIGGERING_EFFECT = 1,

@@ -186,6 +186,7 @@ public:
 		return (set_code & 0xfffu) == (to_match & 0xfffu) && (set_code & to_match) == set_code;
 	}
 	bool is_extra_deck_monster() const;
+	bool is_power_card() const;
 
 	void get_infos(uint32_t query_flag);
 	std::optional<uint64_t> get_assumed_property(uint32_t assume_type) const {
