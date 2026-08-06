@@ -1325,20 +1325,26 @@ void Game::DrawDeckBd() {
 				driver->draw2DRectangleOutline(Resize(313 + i * dx, 465, 359 + i * dx, 531), skin::DECK_WINDOW_HOVERED_CARD_OUTLINE_VAL);
 		}
 	}
-	//side deck
+	//side deck / powers deck
 	{
+		const bool powers_view = deckBuilder.powers_view && !mainGame->is_siding;
+		const auto& shown_deck = powers_view ? current_deck.powers : current_deck.side;
+		const auto& shown_pre_deck = powers_view ? gdeckManager->pre_deck.powers : gdeckManager->pre_deck.side;
+		const auto hover = powers_view ? 5 : 3;
 		DRAWRECT(SIDE_INFO, 310, 537, 797, 557);
 		DRAWOUTLINE(SIDE_INFO, 309, 536, 797, 557);
 
-		DrawShadowText(textFont, gDataManager->GetSysString(1332), Resize(314, 536, 409, 556), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
+		const auto label = powers_view ? std::wstring(L"Powers") : std::wstring(gDataManager->GetSysString(1332).data());
+		DrawShadowText(textFont, label, Resize(314, 536, 409, 556), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
 
-		const auto side_deck_size_str = GetDeckSizeStr(current_deck.side, gdeckManager->pre_deck.side);
+		const auto side_deck_size_str = GetDeckSizeStr(shown_deck, shown_pre_deck);
 		DrawShadowText(numFont, side_deck_size_str, Resize(379, 536, 439, 556), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
 
-		const auto side_types_count_str = epro::format(L"{} {} {} {} {} {}",
-													  gDataManager->GetSysString(1312), deckBuilder.side_monster_count,
-													  gDataManager->GetSysString(1313), deckBuilder.side_spell_count,
-													  gDataManager->GetSysString(1314), deckBuilder.side_trap_count);
+		const auto side_types_count_str = powers_view ? std::wstring{} :
+			epro::format(L"{} {} {} {} {} {}",
+						  gDataManager->GetSysString(1312), deckBuilder.side_monster_count,
+						  gDataManager->GetSysString(1313), deckBuilder.side_spell_count,
+						  gDataManager->GetSysString(1314), deckBuilder.side_trap_count);
 
 		const auto sidepos = Resize(310, 537, 797, 557);
 		const auto sideDeckTypeSize = textFont->getDimensionustring(side_types_count_str);
@@ -1349,11 +1355,11 @@ void Game::DrawDeckBd() {
 		DRAWRECT(SIDE, 310, 560, 797, 630);
 		DRAWOUTLINE(SIDE, 309, 559, 797, 630);
 
-		const float dx = (current_deck.side.size() <= 10) ? (436.0f / 9.0f) : (436.0f / (current_deck.side.size() - 1));
+		const float dx = (shown_deck.size() <= 10) ? (436.0f / 9.0f) : (436.0f / (shown_deck.size() - 1));
 
-		for(size_t i = 0; i < current_deck.side.size(); ++i) {
-			DrawThumb(current_deck.side[i], irr::core::vector2di(314 + i * dx, 564), deckBuilder.filterList);
-			if(deckBuilder.hovered_pos == 3 && deckBuilder.hovered_seq == (int)i)
+		for(size_t i = 0; i < shown_deck.size(); ++i) {
+			DrawThumb(shown_deck[i], irr::core::vector2di(314 + i * dx, 564), deckBuilder.filterList);
+			if(deckBuilder.hovered_pos == hover && deckBuilder.hovered_seq == (int)i)
 				driver->draw2DRectangleOutline(Resize(313 + i * dx, 563, 359 + i * dx, 629), skin::DECK_WINDOW_HOVERED_CARD_OUTLINE_VAL);
 		}
 	}

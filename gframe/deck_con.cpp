@@ -651,6 +651,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				pop_extra(hovered_seq);
 			else if(hovered_pos == 3)
 				pop_side(hovered_seq);
+			else if(hovered_pos == 5)
+				pop_powers(hovered_seq);
 			mouse_pos.set(event.MouseInput.X, event.MouseInput.Y);
 			GetHoveredCard();
 			break;
@@ -670,6 +672,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				pushed = push_extra(dragging_pointer, hovered_seq + is_lastcard, forceInput);
 			else if(hovered_pos == 3)
 				pushed = push_side(dragging_pointer, hovered_seq + is_lastcard, forceInput);
+			else if(hovered_pos == 5)
+				pushed = push_powers(dragging_pointer, hovered_seq + is_lastcard, forceInput);
 			else if(hovered_pos == 4 && !mainGame->is_siding)
 				pushed = true;
 			if(!pushed) {
@@ -679,6 +683,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					push_extra(dragging_pointer);
 				else if(click_pos == 3)
 					push_side(dragging_pointer);
+				else if(click_pos == 5)
+					push_powers(dragging_pointer);
 			}
 			is_draging = false;
 			break;
@@ -717,10 +723,16 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					pop_extra(hovered_seq);
 				} else if(hovered_pos == 3) {
 					pop_side(hovered_seq);
+				} else if(hovered_pos == 5) {
+					pop_powers(hovered_seq);
 				} else {
 					auto pointer = gDataManager->GetCardData(hovered_code);
 					if(!pointer || (!gGameConfig->ignoreDeckContents && !check_limit(pointer)))
 						break;
+					if(pointer->type & TYPE_POWER) {
+						push_powers(pointer, -1, gGameConfig->ignoreDeckContents);
+						break;
+					}
 					if (event.MouseInput.Shift) {
 						push_side(pointer, -1, gGameConfig->ignoreDeckContents);
 					}
@@ -737,6 +749,9 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				} else if(click_pos == 3) {
 					if(!push_extra(dragging_pointer))
 						push_main(dragging_pointer);
+				} else if(click_pos == 5) {
+					if(!push_powers(dragging_pointer))
+						push_side(dragging_pointer);
 				} else {
 					push_side(dragging_pointer);
 				}
@@ -767,8 +782,13 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			} else if (hovered_pos == 3) {
 				if(!push_side(pointer) && !push_extra(pointer))
 					push_main(pointer);
+			} else if (hovered_pos == 5) {
+				if(!push_powers(pointer))
+					push_side(pointer);
 			} else {
-				if(!push_extra(pointer) && !push_main(pointer))
+				if(pointer->type & TYPE_POWER) {
+					push_powers(pointer);
+				} else if(!push_extra(pointer) && !push_main(pointer))
 					push_side(pointer);
 			}
 			break;
@@ -805,9 +825,14 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					ExportDeckToClipboard(event.KeyInput.Shift);
 				break;
 			}
-			case irr::KEY_KEY_V: {
+case irr::KEY_KEY_V: {
 				if(event.KeyInput.Control && !mainGame->HasFocus(irr::gui::EGUIET_EDIT_BOX))
 					ImportDeck();
+				break;
+			}
+			case irr::KEY_KEY_P: {
+				if(!mainGame->is_siding)
+					powers_view = !powers_view;
 				break;
 			}
 			default:
@@ -877,6 +902,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					GetHoveredCard();
 					if(hovered_pos == 3)
 						push_side(dragging_pointer, hovered_seq + is_lastcard, true);
+					else if(hovered_pos == 5)
+						push_powers(dragging_pointer, hovered_seq + is_lastcard, true);
 					else {
 						push_main(dragging_pointer, hovered_seq, true) || push_extra(dragging_pointer, hovered_seq + is_lastcard, true);
 					}
@@ -991,6 +1018,22 @@ void DeckBuilder::GetHoveredCard() {
 			return;
 		}
 		if(y >= 564 && y <= 628) {
+			if(!mainGame->is_siding && powers_view) {
+				hovered_pos = 5;
+				int pile_size = static_cast<int>(current_deck.powers.size());
+				if(pile_size == 0)
+					return;
+				int cards_per_row = std::max(10, pile_size);
+				auto seq = cards_per_row - 1;
+				if(x < 750)
+					seq = ((x - 314) * seq) / 436;
+				if(seq >= pile_size)
+					return;
+				hovered_seq = seq;
+				hovered_code = current_deck.powers[hovered_seq]->code;
+				is_lastcard = x >= 772;
+				return;
+			}
 			hovered_pos = 3;
 			int pile_size = static_cast<int>(current_deck.side.size());
 			if(pile_size == 0)
@@ -1498,6 +1541,8 @@ void DeckBuilder::RefreshLimitationStatusOnRemoved(const CardDataC* card, DeckTy
 				--side_trap_count;
 			break;
 		}
+		case DeckType::POWERS:
+			break;
 	}
 }
 void DeckBuilder::RefreshLimitationStatusOnAdded(const CardDataC* card, DeckType location) {
@@ -1549,6 +1594,8 @@ void DeckBuilder::RefreshLimitationStatusOnAdded(const CardDataC* card, DeckType
 				++side_trap_count;
 			break;
 		}
+		case DeckType::POWERS:
+			break;
 	}
 }
 bool DeckBuilder::push_main(const CardDataC* pointer, int seq, bool forced) {
@@ -1560,6 +1607,8 @@ bool DeckBuilder::push_main(const CardDataC* pointer, int seq, bool forced) {
 			return false;
 	}
 	if(pointer->type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ))
+		return false;
+	if(pointer->type & TYPE_POWER)
 		return false;
 	if((pointer->type & (TYPE_LINK | TYPE_SPELL)) == TYPE_LINK)
 		return false;
@@ -1596,6 +1645,8 @@ bool DeckBuilder::push_extra(const CardDataC* pointer, int seq, bool forced) {
 			return false;
 	} else if((pointer->type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)) == 0)
 		return false;
+	if(pointer->type & TYPE_POWER)
+		return false;
 	auto& container = current_deck.extra;
 	if(!forced && !mainGame->is_siding) {
 		if(main_and_extra_legend_count_monster >= 1 && (pointer->ot & SCOPE_LEGEND))
@@ -1612,6 +1663,8 @@ bool DeckBuilder::push_extra(const CardDataC* pointer, int seq, bool forced) {
 	return true;
 }
 bool DeckBuilder::push_side(const CardDataC* pointer, int seq, bool forced) {
+	if(pointer->type & TYPE_POWER)
+		return false;
 	auto& container = current_deck.side;
 	if(!mainGame->is_siding && !forced && container.size() >= 15)
 		return false;
@@ -1621,6 +1674,22 @@ bool DeckBuilder::push_side(const CardDataC* pointer, int seq, bool forced) {
 		container.push_back(pointer);
 	GetHoveredCard();
 	RefreshLimitationStatusOnAdded(pointer, DeckType::SIDE);
+	return true;
+}
+bool DeckBuilder::push_powers(const CardDataC* pointer, int seq, bool forced) {
+	if(mainGame->is_siding)
+		return false;
+	if(!(pointer->type & TYPE_POWER))
+		return false;
+	auto& container = current_deck.powers;
+	if(!forced && container.size() >= 15)
+		return false;
+	if(seq >= 0 && seq < (int)container.size())
+		container.insert(container.begin() + seq, pointer);
+	else
+		container.push_back(pointer);
+	GetHoveredCard();
+	RefreshLimitationStatusOnAdded(pointer, DeckType::POWERS);
 	return true;
 }
 void DeckBuilder::pop_main(int seq) {
@@ -1646,6 +1715,14 @@ void DeckBuilder::pop_side(int seq) {
 	container.erase(it);
 	GetHoveredCard();
 	RefreshLimitationStatusOnRemoved(pcard, DeckType::SIDE);
+}
+void DeckBuilder::pop_powers(int seq) {
+	auto& container = current_deck.powers;
+	auto it = container.begin() + seq;
+	auto pcard = *it;
+	container.erase(it);
+	GetHoveredCard();
+	RefreshLimitationStatusOnRemoved(pcard, DeckType::POWERS);
 }
 bool DeckBuilder::check_limit(const CardDataC* pointer) {
 	uint32_t limitcode = pointer->alias ? pointer->alias : pointer->code;

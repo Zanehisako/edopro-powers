@@ -74,7 +74,8 @@ private:
 	enum DeckType {
 		MAIN,
 		EXTRA,
-		SIDE
+		SIDE,
+		POWERS
 	};
 	void RefreshLimitationStatusOnRemoved(const CardDataC* card, DeckType location);
 	void RefreshLimitationStatusOnAdded(const CardDataC* card, DeckType location);
@@ -85,9 +86,11 @@ private:
 	bool push_main(const CardDataC* pointer, int seq = -1, bool forced = false);
 	bool push_extra(const CardDataC* pointer, int seq = -1, bool forced = false);
 	bool push_side(const CardDataC* pointer, int seq = -1, bool forced = false);
+	bool push_powers(const CardDataC* pointer, int seq = -1, bool forced = false);
 	void pop_main(int seq);
 	void pop_extra(int seq);
 	void pop_side(int seq);
+	void pop_powers(int seq);
 	bool check_limit(const CardDataC* pointer);
 #define DECLARE_WITH_CACHE(type, name) type name;\
 										type prev_##name;
@@ -123,6 +126,7 @@ public:
 	int click_pos;
 	bool is_draging;
 	int scroll_pos;
+	bool powers_view{ false };
 	int dragx;
 	int dragy;
 	const CardDataC* dragging_pointer;
