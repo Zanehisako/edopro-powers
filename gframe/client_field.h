@@ -34,6 +34,7 @@ public:
 	std::vector<ClientCard*> grave[2];
 	std::vector<ClientCard*> remove[2];
 	std::vector<ClientCard*> extra[2];
+	std::vector<ClientCard*> powers[2];
 	std::vector<ClientCard*> limbo_temp;
 	std::set<ClientCard*> overlay_cards;
 	std::vector<ClientCard*> summonable_cards;
@@ -90,7 +91,7 @@ public:
 
 	ClientField();
 	void Clear();
-	void Initial(uint8_t player, uint32_t deckc, uint32_t extrac);
+	void Initial(uint8_t player, uint32_t deckc, uint32_t extrac, uint32_t powersc);
 	std::vector<ClientCard*>* GetList(uint8_t location, uint8_t controler);
 	ClientCard* GetCard(uint8_t controler, uint8_t location, size_t sequence, size_t sub_seq = 0);
 	void AddCard(ClientCard* pcard, uint8_t controler, uint8_t location, uint32_t sequence);

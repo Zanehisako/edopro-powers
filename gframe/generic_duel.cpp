@@ -411,19 +411,20 @@ void GenericDuel::UpdateDeck(DuelPlayer* dp, void* pdata, uint32_t len) {
 		return;
 	auto* deckbuf = static_cast<uint8_t*>(pdata);
 	uint32_t mainc = BufferIO::Read<uint32_t>(deckbuf);
+	uint32_t powersc = BufferIO::Read<uint32_t>(deckbuf);
 	uint32_t sidec = BufferIO::Read<uint32_t>(deckbuf);
 	// verify data
-	if(mainc + sidec > (len - 8) / 4) {
+	if(mainc + powersc + sidec > (len - 12) / 4) {
 		DeckError scem{ DeckError::INVALIDSIZE };
 		NetServer::SendPacketToPlayer(dp, STOC_ERROR_MSG, scem);
 		return;
 	}
 	bool rituals_in_extra = host_info.duel_flag_high & (DUEL_EXTRA_DECK_RITUAL >> 32);
 	if(match_result.empty()) {
-		dueler.deck_error = DeckManager::LoadDeckFromBuffer(dueler.pdeck, (uint32_t*)deckbuf, mainc, sidec, rituals_in_extra ? RITUAL_LOCATION::EXTRA : RITUAL_LOCATION::MAIN);
+		dueler.deck_error = DeckManager::LoadDeckFromBuffer(dueler.pdeck, (uint32_t*)deckbuf, mainc, powersc, sidec, rituals_in_extra ? RITUAL_LOCATION::EXTRA : RITUAL_LOCATION::MAIN);
 		dueler.odeck = dueler.pdeck;
 	} else {
-		if(DeckManager::LoadSide(dueler.pdeck, (uint32_t*)deckbuf, mainc, sidec, rituals_in_extra)) {
+		if(DeckManager::LoadSide(dueler.pdeck, (uint32_t*)deckbuf, mainc, powersc, sidec, rituals_in_extra)) {
 			dueler.ready = true;
 			NetServer::SendPacketToPlayer(dp, STOC_DUEL_START);
 			if(CheckReady()) {
@@ -662,6 +663,13 @@ void GenericDuel::TPResult(DuelPlayer* dp, uint8_t tp) {
 			OCG_DuelNewCard(pduel, &card_info);
 			last_replay.Write<uint32_t>(dueler.pdeck.extra[i]->code, false);
 		}
+		card_info.loc = LOCATION_POWERS;
+		last_replay.Write<uint32_t>(static_cast<uint32_t>(dueler.pdeck.powers.size()), false);
+		for(int32_t i = (int32_t)dueler.pdeck.powers.size() - 1; i >= 0; --i) {
+			card_info.code = dueler.pdeck.powers[i]->code;
+			OCG_DuelNewCard(pduel, &card_info);
+			last_replay.Write<uint32_t>(dueler.pdeck.powers[i]->code, false);
+		}
 	}
 	card_info.team = 1;
 	card_info.con = 1;
@@ -685,7 +693,15 @@ void GenericDuel::TPResult(DuelPlayer* dp, uint8_t tp) {
 		for(int32_t i = (int32_t)dueler.pdeck.extra.size() - 1; i >= 0; --i) {
 			card_info.code = dueler.pdeck.extra[i]->code;
 			OCG_DuelNewCard(pduel, &card_info);
+			OCG_DuelNewCard(pduel, &card_info);
 			last_replay.Write<uint32_t>(dueler.pdeck.extra[i]->code, false);
+		}
+		card_info.loc = LOCATION_POWERS;
+		last_replay.Write<uint32_t>(static_cast<uint32_t>(dueler.pdeck.powers.size()), false);
+		for(int32_t i = (int32_t)dueler.pdeck.powers.size() - 1; i >= 0; --i) {
+			card_info.code = dueler.pdeck.powers[i]->code;
+			OCG_DuelNewCard(pduel, &card_info);
+			last_replay.Write<uint32_t>(dueler.pdeck.powers[i]->code, false);
 		}
 	}
 	last_replay.Write<uint32_t>(static_cast<uint32_t>(extracards.size()), false);
@@ -703,22 +719,30 @@ void GenericDuel::TPResult(DuelPlayer* dp, uint8_t tp) {
 	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 0, LOCATION_EXTRA));
 	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 1, LOCATION_DECK));
 	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 1, LOCATION_EXTRA));
-	NetServer::SendBufferToPlayer(nullptr, STOC_GAME_MSG, startbuf, 18);
+	uint16_t home_powers = 0;
+	for(auto& dueler : players.home)
+		home_powers += static_cast<uint16_t>(dueler.pdeck.powers.size());
+	uint16_t opp_powers = 0;
+	for(auto& dueler : players.opposing)
+		opp_powers += static_cast<uint16_t>(dueler.pdeck.powers.size());
+	BufferIO::Write<uint16_t>(pbuf, home_powers);
+	BufferIO::Write<uint16_t>(pbuf, opp_powers);
+	NetServer::SendBufferToPlayer(nullptr, STOC_GAME_MSG, startbuf, 22);
 	for(auto& dueler : players.home)
 		NetServer::ReSendToPlayer(dueler);
 	startbuf[1] = 1;
-	NetServer::SendBufferToPlayer(nullptr, STOC_GAME_MSG, startbuf, 18);
+	NetServer::SendBufferToPlayer(nullptr, STOC_GAME_MSG, startbuf, 22);
 	for(auto& dueler : players.opposing)
 		NetServer::ReSendToPlayer(dueler);
 	if(!swapped)
 		startbuf[1] = 0x10;
 	else startbuf[1] = 0x11;
-	NetServer::SendBufferToPlayer(nullptr, STOC_GAME_MSG, startbuf, 18);
+	NetServer::SendBufferToPlayer(nullptr, STOC_GAME_MSG, startbuf, 22);
 	for(auto& obs : observers)
 		NetServer::ReSendToPlayer(obs);
-	packets_cache.emplace_back(startbuf, 18);
+	packets_cache.emplace_back(startbuf, 22);
 	startbuf[1] = 0;
-	replay_stream.emplace_back(startbuf, 17);
+	replay_stream.emplace_back(startbuf, 21);
 	PseudoRefreshDeck(0);
 	PseudoRefreshDeck(1);
 	RefreshExtra(0);

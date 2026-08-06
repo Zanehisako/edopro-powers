@@ -242,7 +242,7 @@ catch(...) { what = def; }
 			TOI(cscg.info.team1, mainGame->ebTeam1->getText(), 1);
 			TOI(cscg.info.team2, mainGame->ebTeam2->getText(), 1);
 			TOI(cscg.info.best_of, mainGame->ebBestOf->getText(), 1);
-			static constexpr DeckSizes nolimit_deck_sizes{ {0,999},{0,999},{0,999} };
+			static constexpr DeckSizes nolimit_deck_sizes{ {0,999},{0,999},{0,999},{0,999} };
 			auto& sizes = cscg.info.sizes;
 			if(mainGame->chkNoCheckDeckSize->isChecked()) {
 				sizes = nolimit_deck_sizes;
@@ -253,6 +253,8 @@ catch(...) { what = def; }
 				TOI(sizes.extra.max, mainGame->ebExtraMax->getText(), 15);
 				TOI(sizes.side.min, mainGame->ebSideMin->getText(), 0);
 				TOI(sizes.side.max, mainGame->ebSideMax->getText(), 15);
+				sizes.powers.min = 0;
+				sizes.powers.max = 15;
 			}
 #undef TOI
 			if(mainGame->btnRelayMode->isPressed())
@@ -518,6 +520,10 @@ void DuelClient::HandleSTOCPacketLanAsync(const std::vector<uint8_t>& data) {
 			}
 			case DeckError::SIDECOUNT: {
 				text = epro::sprintf(gDataManager->GetSysString(1419), sidemax, curcount);
+				break;
+			}
+			case DeckError::POWERCOUNT: {
+				text = epro::sprintf(gDataManager->GetSysString(1418), sidemax, curcount);
 				break;
 			}
 			case DeckError::FORBTYPE: {
@@ -792,11 +798,11 @@ void DuelClient::HandleSTOCPacketLanAsync(const std::vector<uint8_t>& data) {
 		if(pkt.info.no_shuffle_deck) {
 			str.append(epro::format(L"*{}\n", gDataManager->GetSysString(1230)));
 		}
-		static constexpr DeckSizes ocg_deck_sizes{ {40,60}, {0,15}, {0,15} };
-		static constexpr DeckSizes rush_deck_sizes{ {40,60}, {0,15}, {0,15} };
-		static constexpr DeckSizes speed_deck_sizes{ {20,30}, {0,6}, {0,6} };
-		static constexpr DeckSizes goat_deck_sizes{ {40,60}, {0,999}, {0,15} };
-		static constexpr DeckSizes empty_deck_sizes{ {0,0}, {0,0}, {0,0} }; // compat mode
+		static constexpr DeckSizes ocg_deck_sizes{ {40,60}, {0,15}, {0,15}, {0,15} };
+		static constexpr DeckSizes rush_deck_sizes{ {40,60}, {0,15}, {0,15}, {0,15} };
+		static constexpr DeckSizes speed_deck_sizes{ {20,30}, {0,6}, {0,6}, {0,15} };
+		static constexpr DeckSizes goat_deck_sizes{ {40,60}, {0,999}, {0,15}, {0,15} };
+		static constexpr DeckSizes empty_deck_sizes{ {0,0}, {0,0}, {0,0}, {0,0} }; // compat mode
 		if(pkt.info.sizes != empty_deck_sizes) {
 			do {
 				if(rule < 6) {
@@ -1676,10 +1682,12 @@ int DuelClient::ClientAnalyze(const uint8_t* msg, uint32_t len) {
 		mainGame->dInfo.strLP[1] = epro::to_wstring(mainGame->dInfo.lp[1]);
 		uint16_t deckc = BufferIO::Read<uint16_t>(pbuf);
 		uint16_t extrac = BufferIO::Read<uint16_t>(pbuf);
-		mainGame->dField.Initial(mainGame->LocalPlayer(0), deckc, extrac);
+		uint16_t powersc = BufferIO::Read<uint16_t>(pbuf);
+		mainGame->dField.Initial(mainGame->LocalPlayer(0), deckc, extrac, powersc);
 		deckc = BufferIO::Read<uint16_t>(pbuf);
 		extrac = BufferIO::Read<uint16_t>(pbuf);
-		mainGame->dField.Initial(mainGame->LocalPlayer(1), deckc, extrac);
+		powersc = BufferIO::Read<uint16_t>(pbuf);
+		mainGame->dField.Initial(mainGame->LocalPlayer(1), deckc, extrac, powersc);
 		mainGame->dInfo.turn = 0;
 		mainGame->dInfo.is_shuffling = false;
 		return true;
@@ -4589,7 +4597,7 @@ void DuelClient::BroadcastReply(evutil_socket_t fd, short events, void* arg) {
 				return epro::format(L"MR {}", (rule == 0) ? 3 : rule);
 			};
 			auto GetIsCustom = [&packet,&rule, is_compact_mode] {
-				static constexpr DeckSizes normal_sizes{ {40,60}, {0,15}, {0,15} };
+				static constexpr DeckSizes normal_sizes{ {40,60}, {0,15}, {0,15}, {0,15} };
 				if(packet.host.draw_count == 1 && packet.host.start_hand == 5 && packet.host.start_lp == 8000
 				   && !packet.host.no_check_deck_content && !packet.host.no_shuffle_deck
 				   && (packet.host.duel_flag_low & DUEL_PSEUDO_SHUFFLE) == 0

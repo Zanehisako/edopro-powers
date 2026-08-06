@@ -25,7 +25,7 @@ struct DeckSizes {
 	struct Sizes {
 		uint16_t min;
 		uint16_t max;
-	} main, extra, side;
+	} main, extra, side, powers;
 };
 
 bool operator!=(const DeckSizes::Sizes& limits, const size_t count);
@@ -117,6 +117,7 @@ struct DeckError {
 		MAINCOUNT,
 		EXTRACOUNT,
 		SIDECOUNT,
+		POWERCOUNT,
 		FORBTYPE,
 		UNOFFICIALCARD,
 		INVALIDSIZE,

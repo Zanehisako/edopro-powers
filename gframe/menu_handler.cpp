@@ -36,15 +36,18 @@ static void UpdateDeck() {
 	const auto& deck = mainGame->deckBuilder.GetCurrentDeck();
 	uint8_t deckbuf[0xf000];
 	auto* pdeck = deckbuf;
-	static constexpr auto max_deck_size = sizeof(deckbuf) / sizeof(uint32_t) - 2;
-	const auto totsize = deck.main.size() + deck.extra.size() + deck.side.size();
+	static constexpr auto max_deck_size = sizeof(deckbuf) / sizeof(uint32_t) - 3;
+	const auto totsize = deck.main.size() + deck.extra.size() + deck.powers.size() + deck.side.size();
 	if(totsize > max_deck_size)
 		return;
 	BufferIO::Write<uint32_t>(pdeck, static_cast<uint32_t>(deck.main.size() + deck.extra.size()));
+	BufferIO::Write<uint32_t>(pdeck, static_cast<uint32_t>(deck.powers.size()));
 	BufferIO::Write<uint32_t>(pdeck, static_cast<uint32_t>(deck.side.size()));
 	for(const auto& pcard : deck.main)
 		BufferIO::Write<uint32_t>(pdeck, pcard->code);
 	for(const auto& pcard : deck.extra)
+		BufferIO::Write<uint32_t>(pdeck, pcard->code);
+	for(const auto& pcard : deck.powers)
 		BufferIO::Write<uint32_t>(pdeck, pcard->code);
 	for(const auto& pcard : deck.side)
 		BufferIO::Write<uint32_t>(pdeck, pcard->code);
@@ -972,10 +975,10 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					mainGame->ebSideMin->setText(epro::to_wstring<int>(size.side.min).data());
 					mainGame->ebSideMax->setText(epro::to_wstring<int>(size.side.max).data());
 				};
-				static constexpr DeckSizes ocg_deck_sizes{ {40,60}, {0,15}, {0,15} };
-				static constexpr DeckSizes rush_deck_sizes{ {40,60}, {0,15}, {0,15} };
-				static constexpr DeckSizes speed_deck_sizes{ {20,30}, {0,6}, {0,6} };
-				static constexpr DeckSizes goat_deck_sizes{ {40,60}, {0,999}, {0,15} };
+				static constexpr DeckSizes ocg_deck_sizes{ {40,60}, {0,15}, {0,15}, {0,15} };
+				static constexpr DeckSizes rush_deck_sizes{ {40,60}, {0,15}, {0,15}, {0,15} };
+				static constexpr DeckSizes speed_deck_sizes{ {20,30}, {0,6}, {0,6}, {0,15} };
+				static constexpr DeckSizes goat_deck_sizes{ {40,60}, {0,999}, {0,15}, {0,15} };
 				mainGame->chkTcgRulings->setChecked(false);
 				auto combobox = static_cast<irr::gui::IGUIComboBox*>(event.GUIEvent.Caller);
 #define CHECK(MR) case (MR - 1): { mainGame->duel_param = DUEL_MODE_MR##MR; mainGame->forbiddentypes = DUEL_MODE_MR##MR##_FORB;\

@@ -65,6 +65,7 @@ void ClientField::Clear() {
 		ClearVector(grave[i]);
 		ClearVector(remove[i]);
 		ClearVector(extra[i]);
+		ClearVector(powers[i]);
 	}
 	ClearVector(limbo_temp);
 	ClearVector(overlay_cards);
@@ -110,7 +111,7 @@ void ClientField::Clear() {
 	conti_selecting = false;
 	deck_reversed = false;
 }
-void ClientField::Initial(uint8_t player, uint32_t deckc, uint32_t extrac) {
+void ClientField::Initial(uint8_t player, uint32_t deckc, uint32_t extrac, uint32_t powersc) {
 	ClientCard* pcard;
 	for(uint32_t i = 0; i < deckc; ++i) {
 		pcard = new ClientCard{};
@@ -128,6 +129,16 @@ void ClientField::Initial(uint8_t player, uint32_t deckc, uint32_t extrac) {
 		pcard->owner = player;
 		pcard->controler = player;
 		pcard->location = LOCATION_EXTRA;
+		pcard->sequence = i;
+		pcard->position = POS_FACEDOWN_DEFENSE;
+		pcard->UpdateDrawCoordinates(true);
+	}
+	for(uint32_t i = 0; i < powersc; ++i) {
+		pcard = new ClientCard{};
+		powers[player].push_back(pcard);
+		pcard->owner = player;
+		pcard->controler = player;
+		pcard->location = LOCATION_POWERS;
 		pcard->sequence = i;
 		pcard->position = POS_FACEDOWN_DEFENSE;
 		pcard->UpdateDrawCoordinates(true);
@@ -155,6 +166,9 @@ std::vector<ClientCard*>* ClientField::GetList(uint8_t location, uint8_t control
 		break;
 	case LOCATION_EXTRA:
 		return &extra[controler];
+		break;
+	case LOCATION_POWERS:
+		return &powers[controler];
 		break;
 	}
 	return nullptr;

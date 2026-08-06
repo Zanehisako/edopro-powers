@@ -137,7 +137,7 @@ void ServerLobby::FillOnlineRooms() {
 		roomListTable->setCellText(index, 6, room.description.data());
 		roomListTable->setCellText(index, 7, room.started ? gDataManager->GetSysString(1986).data() : gDataManager->GetSysString(1987).data());
 
-		static constexpr DeckSizes normal_sizes{ {40,60}, {0,15}, {0,15} };
+		static constexpr DeckSizes normal_sizes{ {40,60}, {0,15}, {0,15}, {0,15} };
 
 		irr::video::SColor color;
 		if(room.started)
@@ -245,6 +245,8 @@ void ServerLobby::GetRoomsThread() {
 				room.info.sizes.extra.max = GET("extra_max", uint16_t);
 				room.info.sizes.side.min = GET("side_min", uint16_t);
 				room.info.sizes.side.max = GET("side_max", uint16_t);
+				room.info.sizes.powers.min = GET("powers_min", uint16_t);
+				room.info.sizes.powers.max = GET("powers_max", uint16_t);
 #undef GET
 				for(auto& obj2 : obj["users"])
 					room.players.push_back(BufferIO::DecodeUTF8(obj2["name"].get_ref<const std::string&>()));

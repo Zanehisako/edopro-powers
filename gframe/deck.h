@@ -10,10 +10,12 @@ struct Deck {
 	Vector main;
 	Vector extra;
 	Vector side;
+	Vector powers;
 	void clear() {
 		main.clear();
 		extra.clear();
 		side.clear();
+		powers.clear();
 	}
 };
 enum class RITUAL_LOCATION : uint8_t {

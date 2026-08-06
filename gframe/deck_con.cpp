@@ -355,7 +355,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				auto old_skills = DeckManager::TypeCount(gdeckManager->pre_deck.main, TYPE_SKILL);
 				auto new_skills = DeckManager::TypeCount(current_deck.main, TYPE_SKILL);
 				if((current_deck.main.size() - new_skills) != (gdeckManager->pre_deck.main.size() - old_skills)
-				   || current_deck.extra.size() != gdeckManager->pre_deck.extra.size()) {
+				   || current_deck.extra.size() != gdeckManager->pre_deck.extra.size()
+				   || current_deck.powers.size() != gdeckManager->pre_deck.powers.size()) {
 					mainGame->PopupMessage(gDataManager->GetSysString(1408));
 					break;
 				}
@@ -363,17 +364,20 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				const auto& deck = current_deck;
 				uint8_t deckbuf[0xf000];
 				auto* pdeck = deckbuf;
-				static constexpr auto max_deck_size = sizeof(deckbuf) / sizeof(uint32_t) - 2;
-				const auto totsize = deck.main.size() + deck.extra.size() + deck.side.size();
+				static constexpr auto max_deck_size = sizeof(deckbuf) / sizeof(uint32_t) - 3;
+				const auto totsize = deck.main.size() + deck.extra.size() + deck.powers.size() + deck.side.size();
 				if(totsize > max_deck_size) {
 					mainGame->PopupMessage(gDataManager->GetSysString(1410));
 					break;
 				}
 				BufferIO::Write<uint32_t>(pdeck, static_cast<uint32_t>(deck.main.size() + deck.extra.size()));
+				BufferIO::Write<uint32_t>(pdeck, static_cast<uint32_t>(deck.powers.size()));
 				BufferIO::Write<uint32_t>(pdeck, static_cast<uint32_t>(deck.side.size()));
 				for(const auto& pcard : deck.main)
 					BufferIO::Write<uint32_t>(pdeck, pcard->code);
 				for(const auto& pcard : deck.extra)
+					BufferIO::Write<uint32_t>(pdeck, pcard->code);
+				for(const auto& pcard : deck.powers)
 					BufferIO::Write<uint32_t>(pdeck, pcard->code);
 				for(const auto& pcard : deck.side)
 					BufferIO::Write<uint32_t>(pdeck, pcard->code);
