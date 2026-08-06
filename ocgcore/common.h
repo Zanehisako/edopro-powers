@@ -1,14 +1,40 @@
 /*
- * Copyright (c) 2025, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
+ * Copyright (c) 2009-2015, Argon Sun (Fluorohydride)
+ * Copyright (c) 2017-2025, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-#ifndef OCGAPI_CONSTANTS_H
-#define OCGAPI_CONSTANTS_H
+#ifndef COMMON_H_
+#define COMMON_H_
 
-#include <stdint.h> /* uint64_t */
+#if defined( _MSC_VER) && !defined(__clang_analyzer__)
+#pragma warning(disable: 4244)
+#define unreachable() __assume(0)
+#define NoInline __declspec(noinline)
+#define ForceInline __forceinline
+#define Assume(cond) __assume(cond)
+#else
+#if !defined(__forceinline)
+#define ForceInline __attribute__((always_inline)) inline
+#else
+#define ForceInline __forceinline
+#endif
+#define unreachable() __builtin_unreachable()
+#define NoInline __attribute__ ((noinline))
+#define Assume(cond) do { if(!(cond)){ unreachable(); } } while(0)
+#endif
 
-/* Locations */
+#if defined(__clang_analyzer__)
+#undef NDEBUG
+#endif
+
+#include <cassert>
+#include <cstdint>
+
+#define TRUE 1
+#define FALSE 0
+
+//Locations
 #define LOCATION_DECK    0x01
 #define LOCATION_HAND    0x02
 #define LOCATION_MZONE   0x04
@@ -17,20 +43,35 @@
 #define LOCATION_REMOVED 0x20
 #define LOCATION_EXTRA   0x40
 #define LOCATION_OVERLAY 0x80
-#define LOCATION_ONFIELD (LOCATION_MZONE | LOCATION_SZONE)
-#define LOCATION_POWERS  0x2000
+#define LOCATION_ONFIELD 0x0c
+#define LOCATION_FZONE   0x100
+#define LOCATION_PZONE   0x200
+#define LOCATION_STZONE  0x400
+#define LOCATION_MMZONE  0x800
+#define LOCATION_EMZONE  0x1000
+#define LOCATION_POWERS  0x2000  //Powers deck zone
+//For redirect
+#define LOCATION_DECKBOT	0x10001		//Return to deck bottom
+#define LOCATION_DECKSHF	0x20001		//Return to deck and shuffle
 
-/* Positions */
+//
+#define COIN_HEADS  1
+#define COIN_TAILS  0
+
+//Positions
 #define POS_FACEUP_ATTACK    0x1
 #define POS_FACEDOWN_ATTACK  0x2
 #define POS_FACEUP_DEFENSE   0x4
 #define POS_FACEDOWN_DEFENSE 0x8
-#define POS_FACEUP           (POS_FACEUP_ATTACK | POS_FACEUP_DEFENSE)
-#define POS_FACEDOWN         (POS_FACEDOWN_ATTACK | POS_FACEDOWN_DEFENSE)
-#define POS_ATTACK           (POS_FACEUP_ATTACK | POS_FACEDOWN_ATTACK)
-#define POS_DEFENSE          (POS_FACEUP_DEFENSE | POS_FACEDOWN_DEFENSE)
+#define POS_FACEUP           0x5
+#define POS_FACEDOWN         0xa
+#define POS_ATTACK           0x3
+#define POS_DEFENSE          0xc
 
-/* Card Types */
+//Flip effect flags
+#define NO_FLIP_EFFECT     0x10000
+
+//Types of cards
 #define TYPE_MONSTER     0x1
 #define TYPE_SPELL       0x2
 #define TYPE_TRAP        0x4
@@ -59,7 +100,7 @@
 #define TYPE_LINK        0x4000000
 #define TYPE_POWER       0x8000000
 
-/* Attributes */
+//Attributes
 #define ATTRIBUTE_EARTH  0x01
 #define ATTRIBUTE_WATER  0x02
 #define ATTRIBUTE_FIRE   0x04
@@ -69,7 +110,7 @@
 #define ATTRIBUTE_DIVINE 0x40
 #define ATTRIBUTE_ALL    (ATTRIBUTE_DARK | ATTRIBUTE_DIVINE | ATTRIBUTE_EARTH | ATTRIBUTE_FIRE | ATTRIBUTE_LIGHT | ATTRIBUTE_WATER | ATTRIBUTE_WIND)
 
-/* Monster Races */
+//Races
 #define RACE_WARRIOR      0x1
 #define RACE_SPELLCASTER  0x2
 #define RACE_FAIRY        0x4
@@ -102,11 +143,10 @@
 #define RACE_OMEGAPSYCHIC      0x20000000
 #define RACE_CELESTIALWARRIOR  0x40000000
 #define RACE_GALAXY            0x80000000
-#define RACE_YOKAI             0x4000000000000000
 #define RACE_MAX               RACE_GALAXY
-#define RACE_ALL               (((((uint64_t)RACE_MAX)<<1)-1)|RACE_YOKAI)
+#define RACE_ALL               (~(RACE_MAX<<1))
 
-/* Event Reasons */
+//Reasons
 #define REASON_DESTROY     0x1
 #define REASON_RELEASE     0x2
 #define REASON_TEMPORARY   0x4
@@ -132,21 +172,22 @@
 #define REASON_REPLACE     0x1000000
 #define REASON_DRAW        0x2000000
 #define REASON_REDIRECT    0x4000000
+//#define REASON_REVEAL      0x8000000
 #define REASON_LINK        0x10000000
 
-/* Card Status */
-#define STATUS_DISABLED           0x1
-#define STATUS_TO_ENABLE          0x2
-#define STATUS_TO_DISABLE         0x4
-#define STATUS_PROC_COMPLETE      0x8
-#define STATUS_SET_TURN           0x10
-#define STATUS_NO_LEVEL           0x20
-#define STATUS_BATTLE_RESULT      0x40
-#define STATUS_SPSUMMON_STEP      0x80
-#define STATUS_FORM_CHANGED       0x100
-#define STATUS_SUMMONING          0x200
-#define STATUS_EFFECT_ENABLED     0x400
-#define STATUS_SUMMON_TURN        0x800
+//Status
+#define STATUS_DISABLED           0x0001
+#define STATUS_TO_ENABLE          0x0002
+#define STATUS_TO_DISABLE         0x0004
+#define STATUS_PROC_COMPLETE      0x0008
+#define STATUS_SET_TURN           0x0010
+#define STATUS_NO_LEVEL           0x0020
+#define STATUS_BATTLE_RESULT      0x0040
+#define STATUS_SPSUMMON_STEP      0x0080
+#define STATUS_FORM_CHANGED       0x0100
+#define STATUS_SUMMONING          0x0200
+#define STATUS_EFFECT_ENABLED     0x0400
+#define STATUS_SUMMON_TURN        0x0800
 #define STATUS_DESTROY_CONFIRMED  0x1000
 #define STATUS_LEAVE_CONFIRMED    0x2000
 #define STATUS_BATTLE_DESTROYED   0x4000
@@ -158,6 +199,7 @@
 #define STATUS_FUTURE_FUSION      0x100000
 #define STATUS_ATTACK_CANCELED    0x200000
 #define STATUS_INITIALIZING       0x400000
+//#define STATUS_ACTIVATED          0x800000
 #define STATUS_JUST_POS           0x1000000
 #define STATUS_CONTINUOUS_POS     0x2000000
 #define STATUS_FORBIDDEN          0x4000000
@@ -166,7 +208,7 @@
 #define STATUS_FLIP_SUMMON_TURN   0x20000000
 #define STATUS_SPSUMMON_TURN      0x40000000
 
-/* Card Queries */
+//Query list
 #define QUERY_CODE         0x1
 #define QUERY_POSITION     0x2
 #define QUERY_ALIAS        0x4
@@ -195,7 +237,7 @@
 #define QUERY_COVER        0x2000000
 #define QUERY_END          0x80000000
 
-/* Link Markers */
+//Link markers
 #define LINK_MARKER_BOTTOM_LEFT  0001
 #define LINK_MARKER_BOTTOM       0002
 #define LINK_MARKER_BOTTOM_RIGHT 0004
@@ -205,7 +247,7 @@
 #define LINK_MARKER_TOP          0200
 #define LINK_MARKER_TOP_RIGHT    0400
 
-/* Ocgapi Messages */
+//Messages
 #define MSG_RETRY                1
 #define MSG_HINT                 2
 #define MSG_WAITING              3
@@ -294,7 +336,7 @@
 #define MSG_ANNOUNCE_NUMBER      143
 #define MSG_CARD_HINT            160
 #define MSG_TAG_SWAP             161
-#define MSG_RELOAD_FIELD         162
+#define MSG_RELOAD_FIELD         162 // Debug.ReloadFieldEnd()
 #define MSG_AI_NAME              163
 #define MSG_SHOW_HINT            164
 #define MSG_PLAYER_HINT          165
@@ -302,7 +344,9 @@
 #define MSG_CUSTOM_MSG           180
 #define MSG_REMOVE_CARDS         190
 
-/* Duel Hints */
+#define OLD_REPLAY_MODE          231
+
+//Hints
 #define HINT_EVENT      1
 #define HINT_MESSAGE    2
 #define HINT_SELECTMSG  3
@@ -315,7 +359,7 @@
 #define HINT_CARD       10
 #define HINT_ZONE       11
 
-/* Card Hints */
+
 #define CHINT_TURN        1
 #define CHINT_CARD        2
 #define CHINT_RACE        3
@@ -324,48 +368,46 @@
 #define CHINT_DESC_ADD    6
 #define CHINT_DESC_REMOVE 7
 
-/* Plater Hints */
 #define PHINT_DESC_ADD    6
 #define PHINT_DESC_REMOVE 7
 
-/* */
 #define EFFECT_CLIENT_MODE_NORMAL  0
 #define EFFECT_CLIENT_MODE_RESOLVE 1
 #define EFFECT_CLIENT_MODE_RESET   2
 
-/* Announce Card Opcodes */
-#define OPCODE_ADD           0x4000000000000000
-#define OPCODE_SUB           0x4000000100000000
-#define OPCODE_MUL           0x4000000200000000
-#define OPCODE_DIV           0x4000000300000000
-#define OPCODE_AND           0x4000000400000000
-#define OPCODE_OR            0x4000000500000000
-#define OPCODE_NEG           0x4000000600000000
-#define OPCODE_NOT           0x4000000700000000
-#define OPCODE_BAND          0x4000000800000000
-#define OPCODE_BOR           0x4000000900000000
-#define OPCODE_BNOT          0x4000001000000000
-#define OPCODE_BXOR          0x4000001100000000
-#define OPCODE_LSHIFT        0x4000001200000000
-#define OPCODE_RSHIFT        0x4000001300000000
+#define OPCODE_ADD          0x4000000000000000
+#define OPCODE_SUB          0x4000000100000000
+#define OPCODE_MUL          0x4000000200000000
+#define OPCODE_DIV          0x4000000300000000
+#define OPCODE_AND          0x4000000400000000
+#define OPCODE_OR           0x4000000500000000
+#define OPCODE_NEG          0x4000000600000000
+#define OPCODE_NOT          0x4000000700000000
+#define OPCODE_BAND         0x4000000800000000
+#define OPCODE_BOR          0x4000000900000000
+#define OPCODE_BNOT         0x4000001000000000
+#define OPCODE_BXOR         0x4000001100000000
+#define OPCODE_LSHIFT       0x4000001200000000
+#define OPCODE_RSHIFT       0x4000001300000000
 #define OPCODE_ALLOW_ALIASES 0x4000001400000000
-#define OPCODE_ALLOW_TOKENS  0x4000001500000000
-#define OPCODE_ISCODE        0x4000010000000000
-#define OPCODE_ISSETCARD     0x4000010100000000
-#define OPCODE_ISTYPE        0x4000010200000000
-#define OPCODE_ISRACE        0x4000010300000000
-#define OPCODE_ISATTRIBUTE   0x4000010400000000
-#define OPCODE_GETCODE       0x4000010500000000
-#define OPCODE_GETSETCARD    0x4000010600000000
-#define OPCODE_GETTYPE       0x4000010700000000
-#define OPCODE_GETRACE       0x4000010800000000
-#define OPCODE_GETATTRIBUTE  0x4000010900000000
+#define OPCODE_ALLOW_TOKENS 0x4000001500000000
+#define OPCODE_ISCODE       0x4000010000000000
+#define OPCODE_ISSETCARD    0x4000010100000000
+#define OPCODE_ISTYPE       0x4000010200000000
+#define OPCODE_ISRACE       0x4000010300000000
+#define OPCODE_ISATTRIBUTE  0x4000010400000000
+#define OPCODE_GETCODE      0x4000010500000000
+#define OPCODE_GETSETCARD   0x4000010600000000
+#define OPCODE_GETTYPE      0x4000010700000000
+#define OPCODE_GETRACE      0x4000010800000000
+#define OPCODE_GETATTRIBUTE 0x4000010900000000
 
-/* Player Constants */
+//Players
 #define PLAYER_NONE 2
 #define PLAYER_ALL  3
+#define PLAYER_SELFDES  5
 
-/* Duel Phases */
+//Phases
 #define PHASE_DRAW          0x01
 #define PHASE_STANDBY       0x02
 #define PHASE_MAIN1         0x04
@@ -377,7 +419,7 @@
 #define PHASE_MAIN2         0x100
 #define PHASE_END           0x200
 
-/* Duel Options */
+//Options
 #define DUEL_TEST_MODE         0x01
 #define DUEL_ATTACK_FIRST_TURN 0x02
 #define DUEL_USE_TRAPS_IN_NEW_CHAIN 0x04
@@ -430,5 +472,15 @@
 #define DUEL_MODE_MR4_FORB     0
 #define DUEL_MODE_MR5_FORB     0
 
+enum ActivityType : uint8_t {
+	ACTIVITY_SUMMON = 1,
+	ACTIVITY_NORMALSUMMON = 2,
+	ACTIVITY_SPSUMMON = 3,
+	ACTIVITY_FLIPSUMMON = 4,
+	ACTIVITY_ATTACK = 5,
+	ACTIVITY_BATTLE_PHASE = 6,
+	ACTIVITY_CHAIN = 7,
+};
 
-#endif /* OCGAPI_CONSTANTS_H */
+
+#endif /* COMMON_H_ */
