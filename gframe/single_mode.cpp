@@ -89,6 +89,7 @@ restart:
 	bool hand_test = mainGame->dInfo.isHandTest = (duelOptions.scriptName == "hand-test-mode");
 	if(hand_test)
 		opt |= DUEL_ATTACK_FIRST_TURN;
+	opt |= DUEL_ENABLE_POWERS;
 	const auto seed = Utils::GetRandomNumberGeneratorSeed();
 	pduel = mainGame->SetupDuel({ { seed[0], seed[1], seed[2], seed[3] }, opt, team, team });
 	mainGame->dInfo.duel_params = opt;
@@ -135,11 +136,16 @@ restart:
 				last_replay.Write<uint32_t>(playerdeck.main[i]->code, false);
 			}
 			card_info.loc = LOCATION_EXTRA;
-			last_replay.Write<uint32_t>(static_cast<uint32_t>(playerdeck.extra.size()), false);
+			last_replay.Write<uint32_t>(static_cast<uint32_t>(playerdeck.extra.size() + playerdeck.powers.size()), false);
 			for (int32_t i = (int32_t)playerdeck.extra.size() - 1; i >= 0; --i) {
 				card_info.code = playerdeck.extra[i]->code;
 				OCG_DuelNewCard(pduel, &card_info);
 				last_replay.Write<uint32_t>(playerdeck.extra[i]->code, false);
+			}
+			for (int32_t i = (int32_t)playerdeck.powers.size() - 1; i >= 0; --i) {
+				card_info.code = playerdeck.powers[i]->code;
+				OCG_DuelNewCard(pduel, &card_info);
+				last_replay.Write<uint32_t>(playerdeck.powers[i]->code, false);
 			}
 		};
 		LoadDeck(0);
