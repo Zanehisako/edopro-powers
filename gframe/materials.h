@@ -34,6 +34,7 @@ public:
 	const auto& getGrave() const { return *vActiveGrave; }
 	const auto& getRemove() const { return *vActiveRemove; }
 	const auto& getSkill() const { return *vActiveSkill; }
+	const auto& getPowers() const { return *vActivePowers; }
 	irr::core::vector3df vFieldContiAct[2][4];
 	irr::video::S3DVertex vArrow[40];
 	irr::video::SColor c2d[4];
@@ -61,6 +62,7 @@ private:
 	std::array<QuadVertex, 2>* vActiveRemove;
 	std::array<std::array<std::array<QuadVertex, 2>, 2>, 2> vSkillZone;
 	std::array<QuadVertex, 2>* vActiveSkill;
+	const std::array<QuadVertex, 2>* vActivePowers;
 };
 
 extern Materials matManager;

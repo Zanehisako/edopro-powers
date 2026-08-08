@@ -237,6 +237,7 @@ void Materials::SetActiveVertices(int three_columns, int not_separate_pzones) {
 	vActiveGrave = &vFieldGrave[not_separate_pzones][three_columns];
 	vActiveRemove = &vFieldRemove[not_separate_pzones][three_columns];
 	vActiveSkill = &vSkillZone[not_separate_pzones][three_columns];
+	vActivePowers = &vFieldExtra[three_columns];
 }
 
 }

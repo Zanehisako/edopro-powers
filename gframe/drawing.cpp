@@ -634,8 +634,10 @@ void Game::DrawMisc() {
 				DrawPendScale(pcard);
 		}
 		if (dField.extra[p].size()) {
-			const auto str = (dField.extra_p_count[p]) ? epro::format(L"{}({})", dField.extra[p].size(), dField.extra_p_count[p]) : epro::format(L"{}", dField.extra[p].size());
-			DrawStackIndicator(str, matManager.getExtra()[p], (p == 1));
+			std::wstring label = (dField.extra_p_count[p]) ? epro::format(L"{}({})", dField.extra[p].size(), dField.extra_p_count[p]) : epro::format(L"{}", dField.extra[p].size());
+			if(dField.powers[p].size())
+				label += epro::format(L" P:{}", dField.powers[p].size());
+			DrawStackIndicator(label, matManager.getExtra()[p], (p == 1));
 		}
 		if (dField.deck[p].size())
 			DrawStackIndicator(gDataManager->GetNumString(dField.deck[p].size()), matManager.getDeck()[p], (p == 1));

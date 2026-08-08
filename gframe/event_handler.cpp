@@ -3038,6 +3038,10 @@ void ClientField::ShowPileDisplayCards(int location, int player) {
 		loc_id = 1006;
 		display_cards.assign(extra[player].crbegin(), extra[player].crend());
 		break;
+	case LOCATION_POWERS:
+		loc_id = 1006;
+		display_cards.assign(powers[player].crbegin(), powers[player].crend());
+		break;
 	case LOCATION_OVERLAY:
 		loc_id = 1007;
 		display_cards.clear();

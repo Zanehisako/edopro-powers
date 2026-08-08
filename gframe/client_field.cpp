@@ -755,6 +755,11 @@ void ClientField::GetChainDrawCoordinates(uint8_t controler, uint8_t location, u
 		PileZ(extra[controler]);
 		break;
 	}
+	case LOCATION_POWERS: {
+		loc = matManager.getPowers()[controler];
+		PileZ(powers[controler]);
+		break;
+	}
 	default:
 		t->X = 0;
 		t->Y = 0;
@@ -824,6 +829,7 @@ void ClientField::GetCardDrawCoordinates(ClientCard* pcard, irr::core::vector3df
 		case LOCATION_GRAVE:	return matManager.getGrave()[controler];
 		case LOCATION_REMOVED:	return matManager.getRemove()[controler];
 		case LOCATION_EXTRA:	return matManager.getExtra()[controler];
+		case LOCATION_POWERS:	return matManager.getPowers()[controler];
 		case LOCATION_SKILL:	return matManager.getSkill()[controler];
 		case LOCATION_OVERLAY:
 			if(!pcard->overlayTarget || controler > 1)
