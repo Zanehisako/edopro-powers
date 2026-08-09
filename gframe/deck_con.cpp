@@ -70,8 +70,6 @@ void DeckBuilder::Initialize(bool refresh) {
 	mainGame->btnHandTest->setVisible(true);
 	mainGame->btnHandTestSettings->setVisible(true);
 	mainGame->btnYdkeManage->setVisible(true);
-	powers_view = false;
-	mainGame->btnPowers->setText(gDataManager->GetSysString(1328).data());
 	filterList = &gdeckManager->_lfList[mainGame->cbDBLFList->getSelected()];
 	if(refresh) {
 		ClearSearch();
@@ -258,10 +256,6 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					current_deck.main.end(),
 					Utils::GetRandomNumberGenerator()
 				);
-				break;
-			}
-			case BUTTON_POWERS: {
-				TogglePowersView();
 				break;
 			}
 			case BUTTON_SAVE_DECK: {
@@ -837,10 +831,6 @@ case irr::KEY_KEY_V: {
 					ImportDeck();
 				break;
 			}
-			case irr::KEY_KEY_P: {
-				TogglePowersView();
-				break;
-			}
 			default:
 				break;
 			}
@@ -976,19 +966,14 @@ void DeckBuilder::GetHoveredCard() {
 		if(x < 314 || x > 794)
 			return;
 
-		if(y >= 164 && y <= 435) {
-			constexpr auto DECK_LIST_VERTICAL_SPACING = 4;
+		if(y >= 164 && y <= 360) {
+			constexpr auto DECK_LIST_VERTICAL_SPACING = 2;
 			hovered_pos = 1;
 			int pile_size = static_cast<int>(current_deck.main.size());
 			if(pile_size == 0)
 				return;
-			int cards_per_row = 10;
-			bool last_row_not_full = false;
-			if(current_deck.main.size() > 40) {
-				auto res = div(pile_size + 3, 4);
-				cards_per_row = res.quot;
-				last_row_not_full = res.rem != 3;
-			}
+			const int cards_per_row = std::max(10, (pile_size + 2) / 3);
+			const bool last_row_not_full = (pile_size % cards_per_row) != 0;
 			int y_index = (y - 164) / (CARD_THUMB_HEIGHT + DECK_LIST_VERTICAL_SPACING);
 			int x_index = cards_per_row - 1;
 			if(x < 750)
@@ -1007,7 +992,7 @@ void DeckBuilder::GetHoveredCard() {
 			hovered_code = current_deck.main[hovered_seq]->code;
 			return;
 		}
-		if(y >= 466 && y <= 530) {
+		if(y >= 389 && y <= 453) {
 			hovered_pos = 2;
 			int pile_size = static_cast<int>(current_deck.extra.size());
 			if(pile_size == 0)
@@ -1023,23 +1008,23 @@ void DeckBuilder::GetHoveredCard() {
 			is_lastcard = x >= 772;
 			return;
 		}
-		if(y >= 564 && y <= 628) {
-			if(!mainGame->is_siding && powers_view) {
-				hovered_pos = 5;
-				int pile_size = static_cast<int>(current_deck.powers.size());
-				if(pile_size == 0)
-					return;
-				int cards_per_row = std::max(10, pile_size);
-				auto seq = cards_per_row - 1;
-				if(x < 750)
-					seq = ((x - 314) * seq) / 436;
-				if(seq >= pile_size)
-					return;
-				hovered_seq = seq;
-				hovered_code = current_deck.powers[hovered_seq]->code;
-				is_lastcard = x >= 772;
+		if(y >= 481 && y <= 545) {
+			hovered_pos = 5;
+			int pile_size = static_cast<int>(current_deck.powers.size());
+			if(pile_size == 0)
 				return;
-			}
+			int cards_per_row = std::max(10, pile_size);
+			auto seq = cards_per_row - 1;
+			if(x < 750)
+				seq = ((x - 314) * seq) / 436;
+			if(seq >= pile_size)
+				return;
+			hovered_seq = seq;
+			hovered_code = current_deck.powers[hovered_seq]->code;
+			is_lastcard = x >= 772;
+			return;
+		}
+		if(y >= 573 && y <= 637) {
 			hovered_pos = 3;
 			int pile_size = static_cast<int>(current_deck.side.size());
 			if(pile_size == 0)
@@ -1107,23 +1092,6 @@ void DeckBuilder::StartFilter(bool force_refresh) {
 	}
 	FilterCards(force_refresh);
 	GetHoveredCard();
-}
-void DeckBuilder::TogglePowersView() {
-	if(mainGame->is_siding)
-		return;
-	powers_view = !powers_view;
-	mainGame->btnPowers->setText((powers_view ? std::wstring(L"✓ ") + std::wstring(gDataManager->GetSysString(1328)) : std::wstring(gDataManager->GetSysString(1328))).data());
-	if(powers_view) {
-		mainGame->cbCardType->setSelected(5);
-		mainGame->ReloadCBCardType2();
-		mainGame->cbAttribute->setSelected(0);
-		mainGame->cbRace->setSelected(0);
-		mainGame->ebAttack->setText(L"");
-		mainGame->ebDefense->setText(L"");
-		mainGame->ebStar->setText(L"");
-		mainGame->ebScale->setText(L"");
-		StartFilter(true);
-	}
 }
 void DeckBuilder::FilterCards(bool force_refresh) {
 	results.clear();

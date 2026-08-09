@@ -327,7 +327,6 @@ struct deck_edit_page_elements {
 	irr::gui::IGUIButton* btnDeleteDeck;
 	irr::gui::IGUIButton* btnSaveDeckAs;
 	irr::gui::IGUIButton* btnRenameDeck;
-	irr::gui::IGUIButton* btnPowers;
 	irr::gui::IGUIButton* btnSideOK;
 	irr::gui::IGUIButton* btnSideShuffle;
 	irr::gui::IGUIButton* btnSideSort;

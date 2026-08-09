@@ -59,7 +59,6 @@ public:
 	}
 	void StartFilter(bool force_refresh = false);
 	void RefreshCurrentDeck();
-	void TogglePowersView();
 private:
 	void GetHoveredCard();
 	bool FiltersChanged();
@@ -127,7 +126,6 @@ public:
 	int click_pos;
 	bool is_draging;
 	int scroll_pos;
-	bool powers_view{ false };
 	int dragx;
 	int dragy;
 	const CardDataC* dragging_pointer;

@@ -555,10 +555,6 @@ void Game::Initialize() {
 	cbDBDecks = AlignElementWithParent(AddComboBox(env, Scale(80, 35, 220, 60), wDeckEdit, COMBOBOX_DBDECKS));
 	cbDBDecks->setMaxSelectionRows(15);
 
-	btnPowers = AlignElementWithParent(env->addButton(Scale(5, 35, 75, 60), wDeckEdit, BUTTON_POWERS, gDataManager->GetSysString(1328).data()));
-	defaultStrings.emplace_back(btnPowers, 1328);
-	btnPowers->setToolTipText(gDataManager->GetSysString(1090).data());
-
 	btnSaveDeck = AlignElementWithParent(env->addButton(Scale(225, 35, 290, 60), wDeckEdit, BUTTON_SAVE_DECK, gDataManager->GetSysString(1302).data()));
 	defaultStrings.emplace_back(btnSaveDeck, 1302);
 	btnRenameDeck = AlignElementWithParent(env->addButton(Scale(5, 65, 75, 90), wDeckEdit, BUTTON_RENAME_DECK, gDataManager->GetSysString(1362).data()));

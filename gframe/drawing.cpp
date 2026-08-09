@@ -1280,27 +1280,27 @@ void Game::DrawDeckBd() {
 
 		DrawShadowText(textFont, main_types_count_str, pos, irr::core::recti{ 1, 1, 1, 1 }, 0xffffffff, 0xff000000, false, true);
 
-		DRAWRECT(MAIN, 310, 160, 797, 436);
-		DRAWOUTLINE(MAIN, 309, 159, 797, 436);
+		DRAWRECT(MAIN, 310, 158, 797, 362);
+		DRAWOUTLINE(MAIN, 309, 157, 797, 362);
 
-		const int cards_per_row = (current_deck.main.size() > 40) ? static_cast<int>((current_deck.main.size() - 41) / 4 + 11) : 10;
+		const int cards_per_row = std::max(10, (static_cast<int>(current_deck.main.size()) + 2) / 3);
 		const float dx = 436.0f / (cards_per_row - 1);
 
 		for(int i = 0; i < static_cast<int>(current_deck.main.size()); ++i) {
-			DrawThumb(current_deck.main[i], irr::core::vector2di(314 + (i % cards_per_row) * dx, 164 + (i / cards_per_row) * 68), deckBuilder.filterList);
+			DrawThumb(current_deck.main[i], irr::core::vector2di(314 + (i % cards_per_row) * dx, 164 + (i / cards_per_row) * 66), deckBuilder.filterList);
 			if(deckBuilder.hovered_pos == 1 && deckBuilder.hovered_seq == i)
-				driver->draw2DRectangleOutline(Resize(313 + (i % cards_per_row) * dx, 163 + (i / cards_per_row) * 68, 359 + (i % cards_per_row) * dx, 228 + (i / cards_per_row) * 68), skin::DECK_WINDOW_HOVERED_CARD_OUTLINE_VAL);
+				driver->draw2DRectangleOutline(Resize(313 + (i % cards_per_row) * dx, 163 + (i / cards_per_row) * 66, 359 + (i % cards_per_row) * dx, 228 + (i / cards_per_row) * 66), skin::DECK_WINDOW_HOVERED_CARD_OUTLINE_VAL);
 		}
 	}
 	//extra deck
 	{
-		DRAWRECT(EXTRA_INFO, 310, 440, 797, 460);
-		DRAWOUTLINE(EXTRA_INFO, 309, 439, 797, 460);
+		DRAWRECT(EXTRA_INFO, 310, 365, 797, 383);
+		DRAWOUTLINE(EXTRA_INFO, 309, 364, 797, 383);
 
-		DrawShadowText(textFont, gDataManager->GetSysString(1331), Resize(314, 439, 409, 459), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
+		DrawShadowText(textFont, gDataManager->GetSysString(1331), Resize(314, 364, 409, 382), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
 
 		const auto extra_deck_size_str = GetDeckSizeStr(current_deck.extra, gdeckManager->pre_deck.extra);
-		DrawShadowText(numFont, extra_deck_size_str, Resize(379, 440, 439, 460), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
+		DrawShadowText(numFont, extra_deck_size_str, Resize(379, 365, 439, 383), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
 
 		const auto extra_types_count_str = epro::format(L"{} {} {} {} {} {} {} {} {} {}",
 													   gDataManager->GetSysString(1056), deckBuilder.extra_fusion_count,
@@ -1309,60 +1309,75 @@ void Game::DrawDeckBd() {
 													   gDataManager->GetSysString(1076), deckBuilder.extra_link_count,
 													   gDataManager->GetSysString(1057), deckBuilder.extra_rush_ritual_count);
 
-		const auto extrapos = Resize(310, 440, 797, 460);
+		const auto extrapos = Resize(310, 365, 797, 383);
 		const auto extraDeckTypeSize = textFont->getDimensionustring(extra_types_count_str);
 		const auto pos = irr::core::recti(extrapos.LowerRightCorner.X - extraDeckTypeSize.Width - 5, extrapos.UpperLeftCorner.Y,
 										  extrapos.LowerRightCorner.X, extrapos.LowerRightCorner.Y);
 
 		DrawShadowText(textFont, extra_types_count_str, pos, irr::core::recti{ 1, 1, 1, 1 }, 0xffffffff, 0xff000000, false, true);
 
-		DRAWRECT(EXTRA, 310, 463, 797, 533);
-		DRAWOUTLINE(EXTRA, 309, 462, 797, 533);
+		DRAWRECT(EXTRA, 310, 386, 797, 454);
+		DRAWOUTLINE(EXTRA, 309, 385, 797, 454);
 
 		const float dx = (current_deck.extra.size() <= 10) ? (436.0f / 9.0f) : (436.0f / (current_deck.extra.size() - 1));
 
 		for(size_t i = 0; i < current_deck.extra.size(); ++i) {
-			DrawThumb(current_deck.extra[i], irr::core::vector2di(314 + i * dx, 466), deckBuilder.filterList);
+			DrawThumb(current_deck.extra[i], irr::core::vector2di(314 + i * dx, 389), deckBuilder.filterList);
 			if(deckBuilder.hovered_pos == 2 && deckBuilder.hovered_seq == (int)i)
-				driver->draw2DRectangleOutline(Resize(313 + i * dx, 465, 359 + i * dx, 531), skin::DECK_WINDOW_HOVERED_CARD_OUTLINE_VAL);
+				driver->draw2DRectangleOutline(Resize(313 + i * dx, 388, 359 + i * dx, 454), skin::DECK_WINDOW_HOVERED_CARD_OUTLINE_VAL);
 		}
 	}
-	//side deck / powers deck
+	//powers deck
 	{
-		const bool powers_view = deckBuilder.powers_view && !mainGame->is_siding;
-		const auto& shown_deck = powers_view ? current_deck.powers : current_deck.side;
-		const auto& shown_pre_deck = powers_view ? gdeckManager->pre_deck.powers : gdeckManager->pre_deck.side;
-		const auto hover = powers_view ? 5 : 3;
-		DRAWRECT(SIDE_INFO, 310, 537, 797, 557);
-		DRAWOUTLINE(SIDE_INFO, 309, 536, 797, 557);
+		DRAWRECT(SIDE_INFO, 310, 457, 797, 475);
+		DRAWOUTLINE(SIDE_INFO, 309, 456, 797, 475);
 
-		const auto label = powers_view ? std::wstring(L"Powers") : std::wstring(gDataManager->GetSysString(1332).data());
-		DrawShadowText(textFont, label, Resize(314, 536, 409, 556), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
+		DrawShadowText(textFont, gDataManager->GetSysString(1328), Resize(314, 456, 409, 474), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
 
-		const auto side_deck_size_str = GetDeckSizeStr(shown_deck, shown_pre_deck);
-		DrawShadowText(numFont, side_deck_size_str, Resize(379, 536, 439, 556), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
+		const auto powers_deck_size_str = epro::to_wstring(current_deck.powers.size());
+		DrawShadowText(numFont, powers_deck_size_str, Resize(379, 457, 439, 475), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
 
-		const auto side_types_count_str = powers_view ? std::wstring{} :
-			epro::format(L"{} {} {} {} {} {}",
-						  gDataManager->GetSysString(1312), deckBuilder.side_monster_count,
-						  gDataManager->GetSysString(1313), deckBuilder.side_spell_count,
-						  gDataManager->GetSysString(1314), deckBuilder.side_trap_count);
+		DRAWRECT(SIDE, 310, 478, 797, 546);
+		DRAWOUTLINE(SIDE, 309, 477, 797, 546);
 
-		const auto sidepos = Resize(310, 537, 797, 557);
+		const float dx = (current_deck.powers.size() <= 10) ? (436.0f / 9.0f) : (436.0f / (current_deck.powers.size() - 1));
+
+		for(size_t i = 0; i < current_deck.powers.size(); ++i) {
+			DrawThumb(current_deck.powers[i], irr::core::vector2di(314 + i * dx, 481), deckBuilder.filterList);
+			if(deckBuilder.hovered_pos == 5 && deckBuilder.hovered_seq == (int)i)
+				driver->draw2DRectangleOutline(Resize(313 + i * dx, 480, 359 + i * dx, 546), skin::DECK_WINDOW_HOVERED_CARD_OUTLINE_VAL);
+		}
+	}
+	//side deck
+	{
+		DRAWRECT(SIDE_INFO, 310, 549, 797, 567);
+		DRAWOUTLINE(SIDE_INFO, 309, 548, 797, 567);
+
+		DrawShadowText(textFont, gDataManager->GetSysString(1332), Resize(314, 548, 409, 566), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
+
+		const auto side_deck_size_str = GetDeckSizeStr(current_deck.side, gdeckManager->pre_deck.side);
+		DrawShadowText(numFont, side_deck_size_str, Resize(379, 549, 439, 567), Resize(1, 1, 1, 1), 0xffffffff, 0xff000000, false, true);
+
+		const auto side_types_count_str = epro::format(L"{} {} {} {} {} {}",
+													  gDataManager->GetSysString(1312), deckBuilder.side_monster_count,
+													  gDataManager->GetSysString(1313), deckBuilder.side_spell_count,
+													  gDataManager->GetSysString(1314), deckBuilder.side_trap_count);
+
+		const auto sidepos = Resize(310, 549, 797, 567);
 		const auto sideDeckTypeSize = textFont->getDimensionustring(side_types_count_str);
 		const auto pos = irr::core::recti(sidepos.LowerRightCorner.X - sideDeckTypeSize.Width - 5, sidepos.UpperLeftCorner.Y,
 										  sidepos.LowerRightCorner.X, sidepos.LowerRightCorner.Y);
 
 		DrawShadowText(textFont, side_types_count_str, pos, irr::core::recti{ 1, 1, 1, 1 }, 0xffffffff, 0xff000000, false, true);
-		DRAWRECT(SIDE, 310, 560, 797, 630);
-		DRAWOUTLINE(SIDE, 309, 559, 797, 630);
+		DRAWRECT(SIDE, 310, 570, 797, 638);
+		DRAWOUTLINE(SIDE, 309, 569, 797, 638);
 
-		const float dx = (shown_deck.size() <= 10) ? (436.0f / 9.0f) : (436.0f / (shown_deck.size() - 1));
+		const float dx = (current_deck.side.size() <= 10) ? (436.0f / 9.0f) : (436.0f / (current_deck.side.size() - 1));
 
-		for(size_t i = 0; i < shown_deck.size(); ++i) {
-			DrawThumb(shown_deck[i], irr::core::vector2di(314 + i * dx, 564), deckBuilder.filterList);
-			if(deckBuilder.hovered_pos == hover && deckBuilder.hovered_seq == (int)i)
-				driver->draw2DRectangleOutline(Resize(313 + i * dx, 563, 359 + i * dx, 629), skin::DECK_WINDOW_HOVERED_CARD_OUTLINE_VAL);
+		for(size_t i = 0; i < current_deck.side.size(); ++i) {
+			DrawThumb(current_deck.side[i], irr::core::vector2di(314 + i * dx, 573), deckBuilder.filterList);
+			if(deckBuilder.hovered_pos == 3 && deckBuilder.hovered_seq == (int)i)
+				driver->draw2DRectangleOutline(Resize(313 + i * dx, 572, 359 + i * dx, 638), skin::DECK_WINDOW_HOVERED_CARD_OUTLINE_VAL);
 		}
 	}
 	//search result
