@@ -59,6 +59,7 @@ public:
 	}
 	void StartFilter(bool force_refresh = false);
 	void RefreshCurrentDeck();
+	void TogglePowersView();
 private:
 	void GetHoveredCard();
 	bool FiltersChanged();

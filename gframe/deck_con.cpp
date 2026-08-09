@@ -261,10 +261,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_POWERS: {
-				if(!mainGame->is_siding) {
-					powers_view = !powers_view;
-					mainGame->btnPowers->setText((powers_view ? std::wstring(L"✓ ") + std::wstring(gDataManager->GetSysString(1328)) : std::wstring(gDataManager->GetSysString(1328))).data());
-				}
+				TogglePowersView();
 				break;
 			}
 			case BUTTON_SAVE_DECK: {
@@ -841,10 +838,7 @@ case irr::KEY_KEY_V: {
 				break;
 			}
 			case irr::KEY_KEY_P: {
-				if(!mainGame->is_siding) {
-					powers_view = !powers_view;
-					mainGame->btnPowers->setText((powers_view ? std::wstring(L"✓ ") + std::wstring(gDataManager->GetSysString(1328)) : std::wstring(gDataManager->GetSysString(1328))).data());
-				}
+				TogglePowersView();
 				break;
 			}
 			default:
@@ -1113,6 +1107,23 @@ void DeckBuilder::StartFilter(bool force_refresh) {
 	}
 	FilterCards(force_refresh);
 	GetHoveredCard();
+}
+void DeckBuilder::TogglePowersView() {
+	if(mainGame->is_siding)
+		return;
+	powers_view = !powers_view;
+	mainGame->btnPowers->setText((powers_view ? std::wstring(L"✓ ") + std::wstring(gDataManager->GetSysString(1328)) : std::wstring(gDataManager->GetSysString(1328))).data());
+	if(powers_view) {
+		mainGame->cbCardType->setSelected(5);
+		mainGame->ReloadCBCardType2();
+		mainGame->cbAttribute->setSelected(0);
+		mainGame->cbRace->setSelected(0);
+		mainGame->ebAttack->setText(L"");
+		mainGame->ebDefense->setText(L"");
+		mainGame->ebStar->setText(L"");
+		mainGame->ebScale->setText(L"");
+		StartFilter(true);
+	}
 }
 void DeckBuilder::FilterCards(bool force_refresh) {
 	results.clear();
