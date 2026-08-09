@@ -714,6 +714,8 @@ public:
 	std::vector<epro::path_string> script_dirs;
 	std::vector<epro::path_string> init_scripts;
 	std::vector<epro::path_string> cores_to_load;
+	bool loaded_local_expansions{ false };
+	void LoadLocalExpansions();
 	void PopulateLocales();
 	void ApplyLocale(size_t index, bool forced = false);
 	using locale_entry_t = std::pair<epro::path_string, std::vector<epro::path_string>>;

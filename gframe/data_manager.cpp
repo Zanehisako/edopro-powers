@@ -485,6 +485,8 @@ std::wstring DataManager::FormatRace(uint64_t race, bool isSkill) const {
 }
 std::wstring DataManager::FormatType(uint32_t type) const {
 	std::wstring res;
+	if(type & TYPE_POWER)
+		return GetSysString(1079).data();
 	if(type & TYPE_SKILL)
 		res += GetSysString(1077);
 	if(type & TYPE_ACTION) {
@@ -695,6 +697,10 @@ inline bool check_skills(const CardDataC* p1, const CardDataC* p2) {
 static bool card_sorter(const CardDataC* p1, const CardDataC* p2, bool(*sortoop)(const CardDataC* p1, const CardDataC* p2)) {
 	if(check_either_skills(p1->type, p2->type))
 		return check_skills(p1, p2);
+	if((p1->type & TYPE_POWER) != (p2->type & TYPE_POWER))
+		return (p1->type & TYPE_POWER) < (p2->type & TYPE_POWER);
+	if(p1->type & TYPE_POWER)
+		return check_codes(p1, p2);
 	if((p1->type & monster_spell_trap) != (p2->type & monster_spell_trap))
 		return (p1->type & monster_spell_trap) < (p2->type & monster_spell_trap);
 	if((p1->type & monster_spell_trap) == TYPE_MONSTER) {

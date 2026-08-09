@@ -535,7 +535,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				mainGame->ebScale->setText(L"");
 				switch(mainGame->cbCardType->getSelected()) {
 				case 0:
-				case 4: {
+				case 4:
+				case 5: {
 					mainGame->cbRace->setEnabled(false);
 					mainGame->cbAttribute->setEnabled(false);
 					mainGame->ebAttack->setEnabled(false);
@@ -1219,6 +1220,11 @@ void DeckBuilder::FilterCards(bool force_refresh) {
 bool DeckBuilder::CheckCardProperties(const CardDataM& data) {
 	if(data._data.type & TYPE_TOKEN || data._data.ot & SCOPE_HIDDEN || ((data._data.ot & SCOPE_OFFICIAL) != data._data.ot && (!mainGame->chkAnime->isChecked() && !filterList->whitelist)))
 		return false;
+	if(data._data.type & TYPE_POWER) {
+		if(filter_type != 0 && filter_type != 5)
+			return false;
+	} else if(filter_type == 5)
+		return false;
 	switch(filter_type) {
 	case 1: {
 		if(!(data._data.type & TYPE_MONSTER) || (data._data.type & filter_type2) != filter_type2)
@@ -1271,6 +1277,11 @@ bool DeckBuilder::CheckCardProperties(const CardDataM& data) {
 	}
 	case 4: {
 		if(!(data._data.type & TYPE_SKILL))
+			return false;
+		break;
+	}
+	case 5: {
+		if(!(data._data.type & TYPE_POWER))
 			return false;
 		break;
 	}

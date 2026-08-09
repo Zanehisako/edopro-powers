@@ -2647,6 +2647,30 @@ Game::RepoGui* Game::AddGithubRepositoryStatusWindow(const GitRepo* repo) {
 	grepo.history_button2->setEnabled(repo->ready);
 	return &grepo;
 }
+void Game::LoadLocalExpansions() {
+	if(loaded_local_expansions)
+		return;
+	loaded_local_expansions = true;
+	auto load_folder = [&](const epro::path_string& path) {
+		if(!Utils::DirectoryExists(path))
+			return;
+		for(auto& file : Utils::FindFiles(path, { EPRO_TEXT("cdb") }, 0)) {
+			const auto db_path = path + file;
+			if(gDataManager->LoadDB(db_path))
+				WindBot::AddDatabase(db_path);
+		}
+	};
+	load_folder(EPRO_TEXT("./expansions/"));
+	const epro::path_string root_db = EPRO_TEXT("./cards.cdb");
+	if(Utils::FileExists(root_db) && gDataManager->LoadDB(root_db))
+		WindBot::AddDatabase(root_db);
+	if(is_building) {
+		if(!is_siding)
+			deckBuilder.RefreshCurrentDeck();
+		if(deckBuilder.results.size())
+			deckBuilder.StartFilter(true);
+	}
+}
 void Game::LoadGithubRepositories() {
 	bool update_ready = true;
 	for(const auto& repo : gRepoManager->GetAllRepos()) {
@@ -2670,6 +2694,7 @@ void Game::LoadGithubRepositories() {
 		ParseGithubRepositories(gRepoManager->GetReadyRepos());
 }
 void Game::ParseGithubRepositories(const std::vector<const GitRepo*>& repos) {
+	LoadLocalExpansions();
 	if(repos.empty())
 		return;
 	bool refresh_db = false;
@@ -3388,6 +3413,7 @@ void Game::ReloadCBCardType() {
 	cbCardType->addItem(gDataManager->GetSysString(1313).data());
 	cbCardType->addItem(gDataManager->GetSysString(1314).data());
 	cbCardType->addItem(gDataManager->GetSysString(1077).data());
+	cbCardType->addItem(gDataManager->GetSysString(1328).data());
 }
 void Game::ReloadCBCardType2() {
 	cbCardType2->clear();
@@ -3395,6 +3421,7 @@ void Game::ReloadCBCardType2() {
 	switch (cbCardType->getSelected()) {
 	case 0:
 	case 4:
+	case 5:
 		cbCardType2->setEnabled(false);
 		cbCardType2->addItem(gDataManager->GetSysString(1310).data(), 0);
 		break;
