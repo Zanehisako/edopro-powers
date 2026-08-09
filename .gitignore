@@ -38,6 +38,16 @@ CMakeLists.txt.user
 
 /deploy/
 premake5
+
+# Runtime data downloaded by the repo manager (cloned from config/configs.json)
+/repositories/
+# Puzzles cloned by the repo manager
+/puzzles/
+# Local build output app bundle
+/EDOPro.app/
+# Runtime logs / recordings
+/error.log
+/replay/
 premake5.exe
 /freetype/*
 /irrlicht/*
