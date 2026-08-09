@@ -92,11 +92,24 @@ void interpreter::register_card(card* pcard) {
 	lua_pop(current_state, 1);
 	//Initial
 	if(pcard->data.code) {
-		const bool forced = !(pcard->data.type & TYPE_NORMAL) || (pcard->data.type & TYPE_PENDULUM);
-		pcard->set_status(STATUS_INITIALIZING, TRUE);
-		add_param<LuaParam::CARD>(pcard);
-		call_card_function(pcard, "initial_effect", 1, 0, forced);
-		pcard->set_status(STATUS_INITIALIZING, FALSE);
+		// A card whose script is not shipped (or which does not define
+		// initial_effect) is treated as a vanilla card: we skip the call
+		// instead of raising "attempt to call an error function", so that
+		// decks containing unscripted regular cards still work.
+		luaL_checkstack(current_state, 2, nullptr);
+		char code_buf[32];
+		const char* class_name = format_to(code_buf, "c%u", pcard->data.code);
+		lua_getglobal(current_state, class_name);
+		lua_getfield(current_state, -1, "initial_effect");
+		const bool has_initial_effect = lua_isfunction(current_state, -1);
+		lua_pop(current_state, 2);
+		if(has_initial_effect) {
+			const bool forced = !(pcard->data.type & TYPE_NORMAL) || (pcard->data.type & TYPE_PENDULUM);
+			pcard->set_status(STATUS_INITIALIZING, TRUE);
+			add_param<LuaParam::CARD>(pcard);
+			call_card_function(pcard, "initial_effect", 1, 0, forced);
+			pcard->set_status(STATUS_INITIALIZING, FALSE);
+		}
 	}
 	pcard->cardid = pduel->game_field->infos.card_id++;
 }
