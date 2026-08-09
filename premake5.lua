@@ -239,8 +239,9 @@ workspace "ygo"
 		_includedirs { "/boot/system/develop/headers/freetype2" }
 
 	filter "system:macosx"
-		_includedirs { "/usr/local/include" }
-		libdirs { "/usr/local/lib" }
+		_includedirs { "/usr/local/include", "/opt/homebrew/include", "/opt/homebrew/include/freetype2" }
+		libdirs { "/usr/local/lib", "/opt/homebrew/lib" }
+		linkoptions { "-lz" }
 		--systemversion "10.10"
 
 	filter { "system:ios", "platforms:*-iossim"}

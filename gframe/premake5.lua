@@ -226,7 +226,11 @@ local ygopro_config=function(static_core)
 			end
 		else
 			filter { "system:not windows" }
-				_includedirs "/usr/include/irrlicht"
+				if os.istarget("macosx") then
+					_includedirs { "../irrlicht/include" }
+				else
+					_includedirs "/usr/include/irrlicht"
+				end
 		end
 	end
 

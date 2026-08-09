@@ -36,12 +36,17 @@ EdoproHandler* handler;
 void EDOPRO_SetupMenuBar(void (*callback)(void)) {
 	toggleFullScreenCallback = callback;
 	@autoreleasepool {
+		// When launched from a bare binary (not an .app bundle), macOS registers
+		// the process as a background-only app, whose windows never get shown.
+		// Force regular (foreground) activation policy so the window appears.
+		[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+		[NSApp activateIgnoringOtherApps:YES];
 		// Apparently in a newer version of Irrlicht's CIrrDeviceOSX.mm
 
 		NSString* bundleName = @""; // Cannot actually set the main menu title at runtime
 		NSMenu* systemMenuBar = [[[NSMenu alloc] initWithTitle:@"MainMenu"] autorelease];
 		NSMenu* appMainMenu = [[[NSMenu alloc] initWithTitle:bundleName] autorelease];
-		NSMenu* dockMenu = [[NSApp delegate] applicationDockMenu:NSApp];
+		NSMenu* dockMenu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
 		handler = [[EdoproHandler alloc] init];
 
 		NSMenuItem* appMainMenuOpener = [systemMenuBar addItemWithTitle:bundleName action:nil keyEquivalent:@""];
