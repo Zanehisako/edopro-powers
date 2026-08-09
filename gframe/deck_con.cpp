@@ -70,6 +70,8 @@ void DeckBuilder::Initialize(bool refresh) {
 	mainGame->btnHandTest->setVisible(true);
 	mainGame->btnHandTestSettings->setVisible(true);
 	mainGame->btnYdkeManage->setVisible(true);
+	powers_view = false;
+	mainGame->btnPowers->setText(gDataManager->GetSysString(1328).data());
 	filterList = &gdeckManager->_lfList[mainGame->cbDBLFList->getSelected()];
 	if(refresh) {
 		ClearSearch();
@@ -256,6 +258,13 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					current_deck.main.end(),
 					Utils::GetRandomNumberGenerator()
 				);
+				break;
+			}
+			case BUTTON_POWERS: {
+				if(!mainGame->is_siding) {
+					powers_view = !powers_view;
+					mainGame->btnPowers->setText((powers_view ? std::wstring(L"✓ ") + std::wstring(gDataManager->GetSysString(1328)) : std::wstring(gDataManager->GetSysString(1328))).data());
+				}
 				break;
 			}
 			case BUTTON_SAVE_DECK: {
@@ -832,8 +841,10 @@ case irr::KEY_KEY_V: {
 				break;
 			}
 			case irr::KEY_KEY_P: {
-				if(!mainGame->is_siding)
+				if(!mainGame->is_siding) {
 					powers_view = !powers_view;
+					mainGame->btnPowers->setText((powers_view ? std::wstring(L"✓ ") + std::wstring(gDataManager->GetSysString(1328)) : std::wstring(gDataManager->GetSysString(1328))).data());
+				}
 				break;
 			}
 			default:
