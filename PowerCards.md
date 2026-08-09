@@ -27,6 +27,30 @@ Cards** with its own chain rules.
 | 4 | field zone UI | `materials.*`, `client_field.cpp`, `event_handler.cpp`, `drawing.cpp` (`getPowers()`, pile viewer, `P:` counter) | ✅ |
 | 5 | client modes & config | `single_mode.cpp` (hand‑test loads power deck, `DUEL_ENABLE_POWERS`), online deck‑size defaults | ✅ |
 | 6 | sample cards & verification | `sample_powers/` (see below) | ✅ |
+| 7 | script runtime & protocol fixes | `ocgcore/libduel.cpp` (`Duel.GetReasonEffect` shim), `gframe/generic_duel.cpp` (`MSG_START` per‑player ordering), `script/constant.lua` + `script/utility.lua` shipped locally | ✅ |
+
+## Phase 7 — script runtime & protocol fixes
+
+The sample power scripts previously failed to load in a real duel
+(`error.log` showed `Parameter 2 should be "Int" but is "nil"` at `e1:SetType(...)`
+because `EFFECT_TYPE_*` constants were `nil` — no `constant.lua` was present before
+the repos were cloned, and the fork's v11 core could not run the current
+Project Ignis base scripts).
+
+Fixes (verified headless against the built core):
+- `ocgcore/libduel.cpp`: added `Duel.GetReasonEffect()` — required by the
+  current `chain.lua` (`chain.lua:575`) which otherwise aborts loading the
+  `proc_*.lua` helper scripts.
+- `gframe/generic_duel.cpp`: `MSG_START` now writes per-player
+  `(deck, extra, powers)` groups instead of `(deck, extra) x2, powers x2`,
+  matching the client's reader (`duelclient.cpp` reads deck/extra/powers per
+  player). Previously both players' counts were misread.
+- `script/constant.lua` + `script/utility.lua`: copied from the pinned
+  `delta-bagooska` repo so hand-testing works even before/without cloning repos.
+- Verification: a headless harness driving `OCG_CreateDuel` + `constant.lua` +
+  `utility.lua` + `OCG_StartDuel` + `OCG_DuelNewCard(LOCATION_POWERS)` for
+  `42000001/2/3` now loads `c42000001-3.lua` and processes the duel with **zero**
+  script errors (`initial_effect` runs, effects register).
 
 ## Phases detail
 
@@ -88,4 +112,5 @@ dbb09f2f  Phase 2
 8f0042d2  Phase 4
 1a369a21  Phase 5
 <latest>  Phase 6
+<latest>  Phase 7
 ```

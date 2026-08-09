@@ -77,6 +77,10 @@ LUA_STATIC_FUNCTION(GetDrawCount) {
 	lua_pushinteger(L, pduel->game_field->get_draw_count(playerid));
 	return 1;
 }
+LUA_STATIC_FUNCTION(GetReasonEffect) {
+	interpreter::pushobject(L, pduel->game_field->core.reason_effect);
+	return 1;
+}
 LUA_STATIC_FUNCTION(RegisterEffect) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);

@@ -715,17 +715,17 @@ void GenericDuel::TPResult(DuelPlayer* dp, uint8_t tp) {
 	BufferIO::Write<uint8_t>(pbuf, 0);
 	BufferIO::Write<uint32_t>(pbuf, host_info.start_lp);
 	BufferIO::Write<uint32_t>(pbuf, host_info.start_lp);
-	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 0, LOCATION_DECK));
-	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 0, LOCATION_EXTRA));
-	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 1, LOCATION_DECK));
-	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 1, LOCATION_EXTRA));
 	uint16_t home_powers = 0;
 	for(auto& dueler : players.home)
 		home_powers += static_cast<uint16_t>(dueler.pdeck.powers.size());
 	uint16_t opp_powers = 0;
 	for(auto& dueler : players.opposing)
 		opp_powers += static_cast<uint16_t>(dueler.pdeck.powers.size());
+	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 0, LOCATION_DECK));
+	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 0, LOCATION_EXTRA));
 	BufferIO::Write<uint16_t>(pbuf, home_powers);
+	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 1, LOCATION_DECK));
+	BufferIO::Write<uint16_t>(pbuf, OCG_DuelQueryCount(pduel, 1, LOCATION_EXTRA));
 	BufferIO::Write<uint16_t>(pbuf, opp_powers);
 	NetServer::SendBufferToPlayer(nullptr, STOC_GAME_MSG, startbuf, 22);
 	for(auto& dueler : players.home)
