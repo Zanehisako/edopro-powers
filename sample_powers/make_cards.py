@@ -11,7 +11,8 @@ TYPE_SPELL = 0x2
 TYPE_EFFECT = 0x20
 TYPE_POWER = 0x8000000
 
-MONSTER = TYPE_POWER | TYPE_EFFECT | TYPE_MONSTER
+# Power Cards are never monsters; they use the Spell flag so the engine treats
+# them as non-monster cards while the Power bit keeps them in the Powers deck.
 SPELL = TYPE_POWER | TYPE_SPELL
 
 CARDS = [
@@ -26,7 +27,7 @@ CARDS = [
      "Void Surge",
      "Power Card. Banish 1 card from each player's Graveyard; if you banished a "
      "Monster, draw 1 card. You can only activate 1 Power Card per turn."),
-    (42000003, 0, 0, 0, MONSTER, 1800, 1600, 4, 0x20, 0x40, 0,
+    (42000003, 0, 0, 0, SPELL, 0, 0, 0, 0, 0, 0,
      "Temporal Shifter",
      "Power Card. You can chain this card to any Normal Spell/Trap activation; "
      "negate that card's effect, then place it on top of its owner's Deck. "

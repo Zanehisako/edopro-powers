@@ -16,9 +16,13 @@ repository (see `../PowerCards.md`).
 
 The three cards:
 
-* `42000001` — **Arcane Order** (Dimples, `TYPE_POWER|TYPE_SPELL`)
-* `42000002` — **Void Surge** (Dimples, `TYPE_POWER|TYPE_SPELL`)
-* `42000003` — **Temporal Shifter** (monster, `TYPE_POWER|TYPE_EFFECT|TYPE_MONSTER`)
+* `42000001` — **Arcane Order** (`TYPE_POWER|TYPE_SPELL`)
+* `42000002` — **Void Surge** (`TYPE_POWER|TYPE_SPELL`)
+* `42000003` — **Temporal Shifter** (`TYPE_POWER|TYPE_SPELL`)
+
+Power Cards are never monsters: they use the Spell flag plus the Power bit, so
+the engine treats them as non-monster cards while keeping them in the Powers
+deck.
 
 ## How to use it
 
