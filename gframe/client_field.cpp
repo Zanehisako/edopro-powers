@@ -135,6 +135,8 @@ void ClientField::Initial(uint8_t player, uint32_t deckc, uint32_t extrac, uint3
 		pcard->UpdateDrawCoordinates(true);
 	}
 	(void)powersc;
+	power_pips[0] = 0;
+	power_pips[1] = 1;
 }
 void ClientField::RefreshPowers(uint8_t player) {
 	powers[player].clear();

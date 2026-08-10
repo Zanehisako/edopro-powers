@@ -532,6 +532,7 @@ public:
 	void DrawStatus(ClientCard* pcard);
 	void DrawPendScale(ClientCard* pcard);
 	void DrawStackIndicator(epro::wstringview text, const Materials::QuadVertex v, bool opponent);
+	void DrawPowerPips(uint8_t player);
 	void DrawGUI();
 	void DrawSpec();
 	void DrawBackImage(irr::video::ITexture* texture, bool resized);

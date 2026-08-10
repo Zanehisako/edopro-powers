@@ -644,6 +644,7 @@ void Game::DrawMisc() {
 		}
 		if(dField.powers[p].size())
 			DrawStackIndicator(epro::format(L"P:{}", dField.powers[p].size()), matManager.getPowers()[p], (p == 1));
+		DrawPowerPips(p);
 		if (dField.deck[p].size())
 			DrawStackIndicator(gDataManager->GetNumString(dField.deck[p].size()), matManager.getDeck()[p], (p == 1));
 		if (dField.grave[p].size())
@@ -766,6 +767,17 @@ void Game::DrawStackIndicator(epro::wstringview text, const Materials::QuadVerte
 	auto coords = device->getSceneManager()->getSceneCollisionManager()->getScreenCoordinatesFrom3DPosition({ x0, y0, 0 });
 	DrawShadowText(numFont, utext, irr::core::recti(coords.X - dim.Width, coords.Y - dim.Height, coords.X + dim.Width, coords.Y + dim.Height),
 				   Resize(0, 1, 0, 1), skin::DUELFIELD_STACK_VAL, 0xff000000);
+}
+void Game::DrawPowerPips(uint8_t player) {
+	const auto utext = irr::core::ustring(epro::format(L"{} / 5", static_cast<int>(dField.power_pips[player])).c_str());
+	const auto dim = numFont->getDimensionustring(utext) / 2;
+	const auto& v = matManager.getPowers()[player];
+	float x0 = (v[0].Pos.X + v[1].Pos.X) / 2.0f;
+	float y0 = (player == 1) ? v[0].Pos.Y : v[2].Pos.Y;
+	auto coords = device->getSceneManager()->getSceneCollisionManager()->getScreenCoordinatesFrom3DPosition({ x0, y0, 0 });
+	coords.Y += (player == 1) ? 20 : -20;
+	DrawShadowText(numFont, utext, irr::core::recti(coords.X - dim.Width, coords.Y - dim.Height, coords.X + dim.Width, coords.Y + dim.Height),
+				   Resize(0, 1, 0, 1), skin::DUELFIELD_POWER_PIPS_VAL, 0xff000000);
 }
 void Game::DrawGUI() {
 	if(imageLoading.size()) {

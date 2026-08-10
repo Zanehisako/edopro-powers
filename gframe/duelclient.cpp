@@ -2949,6 +2949,11 @@ int DuelClient::ClientAnalyze(const uint8_t* msg, uint32_t len) {
 		}
 		return true;
 	}
+	case MSG_POWER_UPDATE: {
+		mainGame->dField.power_pips[0] = BufferIO::Read<uint8_t>(pbuf);
+		mainGame->dField.power_pips[1] = BufferIO::Read<uint8_t>(pbuf);
+		return true;
+	}
 	case MSG_NEW_TURN: {
 		Play(SoundManager::SFX::NEXT_TURN);
 		/*const auto player = */mainGame->LocalPlayer(BufferIO::Read<uint8_t>(pbuf));

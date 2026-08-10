@@ -50,6 +50,7 @@ public:
 	std::vector<uint64_t> select_options;
 	std::vector<ChainInfo> chains;
 	int extra_p_count[2];
+	uint8_t power_pips[2] = { 0, 1 };
 
 	size_t selected_option;
 	ClientCard* attacker;
