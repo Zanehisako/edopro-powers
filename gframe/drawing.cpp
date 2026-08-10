@@ -769,18 +769,15 @@ void Game::DrawStackIndicator(epro::wstringview text, const Materials::QuadVerte
 				   Resize(0, 1, 0, 1), skin::DUELFIELD_STACK_VAL, 0xff000000);
 }
 void Game::DrawPowerPips(uint8_t player) {
-	const auto& v = matManager.getPowers()[player];
-	float x0 = (v[0].Pos.X + v[1].Pos.X) / 2.0f;
-	float y0 = (player == 1) ? v[0].Pos.Y : v[2].Pos.Y;
-	auto coords = device->getSceneManager()->getSceneCollisionManager()->getScreenCoordinatesFrom3DPosition({ x0, y0, 0 });
-	coords.Y += (player == 1) ? 20 : -20;
 	const auto radius = Scale(7);
 	const auto gap = Scale(4);
 	const auto count = dField.power_pips[player];
 	const auto total_width = radius * 2 * 5 + gap * 4;
-	const auto start_x = coords.X - total_width / 2;
+	const auto center_x = (player == 0) ? (ResizeX(330) + ResizeX(629)) / 2 : (ResizeX(691) + ResizeX(990)) / 2;
+	const auto center_y = ResizeY(57);
+	const auto start_x = center_x - total_width / 2;
 	for(uint8_t i = 0; i < 5; ++i) {
-		const auto center = irr::core::position2d<irr::s32>(start_x + radius + i * (radius * 2 + gap), coords.Y);
+		const auto center = irr::core::position2d<irr::s32>(start_x + radius + i * (radius * 2 + gap), center_y);
 		const auto color = (i < count) ? skin::DUELFIELD_POWER_PIPS_VAL : skin::DUELFIELD_POWER_PIPS_EMPTY_VAL;
 		driver->draw2DPolygon(center, static_cast<irr::f32>(radius), color, 12);
 	}
