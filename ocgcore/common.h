@@ -343,6 +343,7 @@
 #define MSG_MATCH_KILL           170
 #define MSG_CUSTOM_MSG           180
 #define MSG_REMOVE_CARDS         190
+#define MSG_POWER_UPDATE         191
 
 #define OLD_REPLAY_MODE          231
 

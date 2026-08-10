@@ -236,6 +236,20 @@ LUA_FUNCTION(SetCost) {
 	self->cost = interpreter::get_function_handle(L, findex);
 	return 0;
 }
+LUA_FUNCTION(SetPowerCost) {
+	check_param_count(L, 2);
+	auto cost = lua_get<uint8_t>(L, 2);
+	if(cost < 1)
+		cost = 1;
+	if(cost > 5)
+		cost = 5;
+	self->power_cost = cost;
+	return 0;
+}
+LUA_FUNCTION(GetPowerCost) {
+	lua_pushinteger(L, self->power_cost);
+	return 1;
+}
 LUA_FUNCTION(SetValue) {
 	check_param_count(L, 2);
 	if(self->value && self->is_flag(EFFECT_FLAG_FUNC_VALUE))

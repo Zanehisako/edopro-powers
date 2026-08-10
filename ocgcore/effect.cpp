@@ -297,6 +297,10 @@ int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t negle
 		result = is_action_check(playerid);
 	if(result)
 		result = is_activate_ready(playerid, e, neglect_cond, neglect_cost, neglect_target);
+	if(result && handler && handler->is_power_card() && (type & (EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_QUICK_O)) && !neglect_cost) {
+		if(pduel->game_field->player[playerid].power_pips < power_cost)
+			result = FALSE;
+	}
 	pduel->game_field->core.reason_effect = oreason;
 	pduel->game_field->core.reason_player = op;
 	pduel->game_field->restore_lp_cost();

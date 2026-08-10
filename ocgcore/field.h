@@ -88,6 +88,7 @@ struct player_info {
 	uint32_t extra_p_count{ 0 };
 	uint32_t exchanges{ 0 };
 	uint32_t tag_index{ 0 };
+	int32_t power_pips{ 0 };
 	bool recharge{ false };
 	card_vector list_mzone;
 	card_vector list_szone;
@@ -406,6 +407,10 @@ public:
 	return_card return_cards;
 	return_card_code return_card_codes;
 	tevent nil_event;
+	uint8_t first_turn_player{ 0 };
+
+	void send_power_update_message();
+	void update_power_pips(bool increment);
 
 	static constexpr auto field_used_count = ([]() constexpr {
 		std::array<int32_t, 32> ret{};

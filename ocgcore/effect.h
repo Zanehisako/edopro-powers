@@ -53,6 +53,7 @@ public:
 	int32_t target{};
 	int32_t value{};
 	int32_t operation{};
+	uint8_t power_cost{ 1 };
 	card* owner{ nullptr };
 	card* handler{ nullptr };
 	card* active_handler{};

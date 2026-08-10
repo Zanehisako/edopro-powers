@@ -66,6 +66,20 @@ field::field(duel* _pduel, const OCG_DuelOptions& options) :pduel(_pduel), playe
 	nil_event.reason_effect = nullptr;
 	nil_event.reason_player = PLAYER_NONE;
 }
+void field::send_power_update_message() {
+	auto message = pduel->new_message(MSG_POWER_UPDATE);
+	message->write<uint8_t>(static_cast<uint8_t>(player[0].power_pips));
+	message->write<uint8_t>(static_cast<uint8_t>(player[1].power_pips));
+}
+void field::update_power_pips(bool increment) {
+	if(increment) {
+		if(player[0].power_pips < 5)
+			++player[0].power_pips;
+		if(player[1].power_pips < 5)
+			++player[1].power_pips;
+	}
+	send_power_update_message();
+}
 void field::reload_field_info() {
 	auto message = pduel->new_message(MSG_RELOAD_FIELD);
 	message->write<uint32_t>(core.duel_options);
