@@ -38,6 +38,7 @@ ClientField::ClientField() {
 	grave_act[0] = grave_act[1] = false;
 	remove_act[0] = remove_act[1] = false;
 	extra_act[0] = extra_act[1] = false;
+	powers_act[0] = powers_act[1] = false;
 	pzone_act[0] = pzone_act[1] = false;
 	conti_act = false;
 	deck_reversed = false;
@@ -65,7 +66,7 @@ void ClientField::Clear() {
 		ClearVector(grave[i]);
 		ClearVector(remove[i]);
 		ClearVector(extra[i]);
-		ClearVector(powers[i]);
+		powers[i].clear();
 	}
 	ClearVector(limbo_temp);
 	ClearVector(overlay_cards);
@@ -133,15 +134,13 @@ void ClientField::Initial(uint8_t player, uint32_t deckc, uint32_t extrac, uint3
 		pcard->position = POS_FACEDOWN_DEFENSE;
 		pcard->UpdateDrawCoordinates(true);
 	}
-	for(uint32_t i = 0; i < powersc; ++i) {
-		pcard = new ClientCard{};
-		powers[player].push_back(pcard);
-		pcard->owner = player;
-		pcard->controler = player;
-		pcard->location = LOCATION_POWERS;
-		pcard->sequence = i;
-		pcard->position = POS_FACEDOWN_DEFENSE;
-		pcard->UpdateDrawCoordinates(true);
+	(void)powersc;
+}
+void ClientField::RefreshPowers(uint8_t player) {
+	powers[player].clear();
+	for(auto pcard : extra[player]) {
+		if(pcard && (pcard->type & TYPE_POWER))
+			powers[player].push_back(pcard);
 	}
 }
 std::vector<ClientCard*>* ClientField::GetList(uint8_t location, uint8_t controler) {
@@ -260,6 +259,8 @@ void ClientField::AddCard(ClientCard* pcard, uint8_t controler, uint8_t location
 		break;
 	}
 	}
+	if(location == LOCATION_EXTRA)
+		RefreshPowers(controler);
 }
 ClientCard* ClientField::RemoveCard(uint8_t controler, uint8_t location, uint32_t sequence) {
 	auto RemoveFromPile = [&](auto& pile) {
@@ -312,6 +313,8 @@ ClientCard* ClientField::RemoveCard(uint8_t controler, uint8_t location, uint32_
 		break;
 	}
 	}
+	if(location == LOCATION_EXTRA)
+		RefreshPowers(controler);
 	pcard->location = 0;
 	return pcard;
 }
@@ -321,6 +324,8 @@ void ClientField::UpdateCard(uint8_t controler, uint8_t location, uint32_t seque
 		if(mainGame->dInfo.compat_mode)
 			len = BufferIO::Read<uint32_t>(data);
 		pcard->UpdateInfo(CoreUtils::Query{ data, mainGame->dInfo.compat_mode, len, mainGame->dInfo.legacy_race_size });
+		if(location == LOCATION_EXTRA)
+			RefreshPowers(controler);
 	}
 }
 void ClientField::UpdateFieldCard(uint8_t controler, uint8_t location, const uint8_t* data, uint32_t len) {
@@ -334,6 +339,8 @@ void ClientField::UpdateFieldCard(uint8_t controler, uint8_t location, const uin
 		if(pcard)
 			pcard->UpdateInfo(query);
 	}
+	if(location == LOCATION_EXTRA)
+		RefreshPowers(controler);
 }
 void ClientField::ClearCommandFlag() {
 	auto ClearFlag = [](const std::vector<ClientCard*>& map) { for(auto& pcard : map) pcard->cmdFlag = 0; };
@@ -349,6 +356,7 @@ void ClientField::ClearCommandFlag() {
 	grave_act[0] = grave_act[1] = false;
 	remove_act[0] = remove_act[1] = false;
 	extra_act[0] = extra_act[1] = false;
+	powers_act[0] = powers_act[1] = false;
 	pzone_act[0] = pzone_act[1] = false;
 	conti_act = false;
 }
@@ -370,6 +378,7 @@ void ClientField::ClearChainSelect() {
 	grave_act[0] = grave_act[1] = false;
 	remove_act[0] = remove_act[1] = false;
 	extra_act[0] = extra_act[1] = false;
+	powers_act[0] = powers_act[1] = false;
 	pzone_act[0] = pzone_act[1] = false;
 	conti_act = false;
 }
@@ -683,6 +692,8 @@ void ClientField::ReplaySwap() {
 		chit.UpdateDrawCoordinates();
 	}
 	disabled_field = (disabled_field >> 16) | (disabled_field << 16);
+	RefreshPowers(0);
+	RefreshPowers(1);
 }
 void ClientField::RefreshAllCards() {
 	auto refresh = [](ClientCard* const& pcard) {
@@ -751,8 +762,14 @@ void ClientField::GetChainDrawCoordinates(uint8_t controler, uint8_t location, u
 		break;
 	}
 	case LOCATION_EXTRA: {
-		loc = matManager.getExtra()[controler];
-		PileZ(extra[controler]);
+		auto pcard = GetCard(controler, LOCATION_EXTRA, sequence);
+		if(pcard && (pcard->type & TYPE_POWER)) {
+			loc = matManager.getPowers()[controler];
+			PileZ(powers[controler]);
+		} else {
+			loc = matManager.getExtra()[controler];
+			PileZ(extra[controler]);
+		}
 		break;
 	}
 	case LOCATION_POWERS: {
@@ -828,7 +845,10 @@ void ClientField::GetCardDrawCoordinates(ClientCard* pcard, irr::core::vector3df
 		case LOCATION_SZONE:	return matManager.getSzone()[controler][sequence];
 		case LOCATION_GRAVE:	return matManager.getGrave()[controler];
 		case LOCATION_REMOVED:	return matManager.getRemove()[controler];
-		case LOCATION_EXTRA:	return matManager.getExtra()[controler];
+		case LOCATION_EXTRA:
+			if(pcard->type & TYPE_POWER)
+				return matManager.getPowers()[controler];
+			return matManager.getExtra()[controler];
 		case LOCATION_POWERS:	return matManager.getPowers()[controler];
 		case LOCATION_SKILL:	return matManager.getSkill()[controler];
 		case LOCATION_OVERLAY:
@@ -860,7 +880,7 @@ void ClientField::GetCardDrawCoordinates(ClientCard* pcard, irr::core::vector3df
 		else
 			*r = (controler == 0) ? selfATK : oppoATK;
 		if(((location & (LOCATION_GRAVE | LOCATION_OVERLAY)) == 0) && ((location == LOCATION_DECK && deck_reversed == pcard->is_reversed) ||
-			(location != LOCATION_DECK && pcard->position & POS_FACEDOWN))) {
+			(location != LOCATION_DECK && pcard->position & POS_FACEDOWN && !((pcard->type & TYPE_POWER) && location == LOCATION_EXTRA)))) {
 			*r += facedown;
 			if(location == LOCATION_MZONE && pcard->position & POS_DEFENSE)
 				r->Y = irr::core::PI + 0.001f;
@@ -869,10 +889,26 @@ void ClientField::GetCardDrawCoordinates(ClientCard* pcard, irr::core::vector3df
 			case LOCATION_DECK:
 			case LOCATION_GRAVE:
 			case LOCATION_REMOVED:
-			case LOCATION_EXTRA:
 			case LOCATION_SKILL: {
 				if(!gGameConfig->topdown_view)
 					t->Z += 0.01f * sequence;
+				break;
+			}
+			case LOCATION_EXTRA: {
+				if(!gGameConfig->topdown_view) {
+					if(pcard->type & TYPE_POWER) {
+						size_t idx = 0;
+						for(size_t i = 0; i < powers[controler].size(); ++i) {
+							if(powers[controler][i] == pcard) {
+								idx = i;
+								break;
+							}
+						}
+						t->Z += 0.01f * idx;
+					} else {
+						t->Z += 0.01f * sequence;
+					}
+				}
 				break;
 			}
 			case LOCATION_OVERLAY: {

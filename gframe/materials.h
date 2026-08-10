@@ -56,6 +56,7 @@ private:
 	std::array<QuadVertex, 2>* vActiveDeck;
 	std::array<QuadVertex, 2> vFieldExtra[2];
 	std::array<QuadVertex, 2>* vActiveExtra;
+	std::array<QuadVertex, 2> vFieldPowers[2];
 	std::array<std::array<std::array<QuadVertex, 2>, 2>, 2> vFieldGrave;
 	std::array<QuadVertex, 2>* vActiveGrave;
 	std::array<std::array<std::array<QuadVertex, 2>, 2>, 2> vFieldRemove;

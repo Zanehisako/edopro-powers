@@ -81,6 +81,7 @@ public:
 	bool remove_act[2];
 	bool deck_act[2];
 	bool extra_act[2];
+	bool powers_act[2];
 	bool pzone_act[2];
 	bool conti_act;
 	bool chain_forced;
@@ -98,6 +99,7 @@ public:
 	ClientCard* RemoveCard(uint8_t controler, uint8_t location, uint32_t sequence);
 	void UpdateCard(uint8_t controler, uint8_t location, uint32_t sequence, const uint8_t* data, uint32_t len = 0);
 	void UpdateFieldCard(uint8_t controler, uint8_t location, const uint8_t* data, uint32_t len = 0);
+	void RefreshPowers(uint8_t player);
 	void ClearCommandFlag();
 	void ClearSelect();
 	void ClearChainSelect();

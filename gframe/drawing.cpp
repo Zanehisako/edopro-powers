@@ -191,6 +191,8 @@ void Game::DrawBackGround() {
 		vertex = matManager.getRemove()[dField.hovered_controler];
 	else if(dField.hovered_location == LOCATION_EXTRA)
 		vertex = matManager.getExtra()[dField.hovered_controler];
+	else if(dField.hovered_location == LOCATION_POWERS)
+		vertex = matManager.getPowers()[dField.hovered_controler];
 	if(!vertex)
 		return;
 	driver->setMaterial(matManager.mSelField);
@@ -487,6 +489,8 @@ void Game::DrawMisc() {
 			drawact(matManager.getRemove()[p], dField.remove[p].size() * 0.01f + 0.02f);
 		if(dField.extra_act[p])
 			drawact(matManager.getExtra()[p], dField.extra[p].size() * 0.01f + 0.02f);
+		if(dField.powers_act[p])
+			drawact(matManager.getPowers()[p], dField.powers[p].size() * 0.01f + 0.02f);
 		if(dField.pzone_act[p])
 			drawact(matManager.getSzone()[p][dInfo.GetPzoneIndex(0)], 0.03f);
 	}
@@ -633,12 +637,13 @@ void Game::DrawMisc() {
 			if (pcard && (pcard->type & TYPE_PENDULUM) && !pcard->equipTarget)
 				DrawPendScale(pcard);
 		}
-		if (dField.extra[p].size()) {
-			std::wstring label = (dField.extra_p_count[p]) ? epro::format(L"{}({})", dField.extra[p].size(), dField.extra_p_count[p]) : epro::format(L"{}", dField.extra[p].size());
-			if(dField.powers[p].size())
-				label += epro::format(L" P:{}", dField.powers[p].size());
+		if (dField.extra[p].size() - dField.powers[p].size()) {
+			auto count = dField.extra[p].size() - dField.powers[p].size();
+			std::wstring label = (dField.extra_p_count[p]) ? epro::format(L"{}({})", count, dField.extra_p_count[p]) : epro::format(L"{}", count);
 			DrawStackIndicator(label, matManager.getExtra()[p], (p == 1));
 		}
+		if(dField.powers[p].size())
+			DrawStackIndicator(epro::format(L"P:{}", dField.powers[p].size()), matManager.getPowers()[p], (p == 1));
 		if (dField.deck[p].size())
 			DrawStackIndicator(gDataManager->GetNumString(dField.deck[p].size()), matManager.getDeck()[p], (p == 1));
 		if (dField.grave[p].size())

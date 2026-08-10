@@ -59,6 +59,11 @@ Materials::Materials() {
 	//extra
 	SetS3DVertex(vFieldExtra[0][0], 0.2f, 2.7f, 1.0f, 3.9f, 0, 1, 0, 0, 0, 0);
 	SetS3DVertex(vFieldExtra[1][0], 1.3f, 2.7f, 2.1f, 3.9f, 0, 1, 0, 0, 0, 0);
+	//powers
+	SetS3DVertex(vFieldPowers[0][0], -0.95f, 2.7f, -0.15f, 3.9f, 0, 1, 0, 0, 0, 0);
+	SetS3DVertex(vFieldPowers[1][0], 0.2f, 2.7f, 1.0f, 3.9f, 0, 1, 0, 0, 0, 0);
+	SetS3DVertex(vFieldPowers[0][1], 7.8f, -3.9f, 8.6f, -2.7f, 0, 1, 0, 0, 0, 0);
+	SetS3DVertex(vFieldPowers[1][1], 7.8f, -3.9f, 8.6f, -2.7f, 0, 1, 0, 0, 0, 0);
 	//remove
 	SetS3DVertex(vFieldRemove[0][0][0], 7.9f, 0.1f, 8.7f, 1.3f, 0, 1, 0, 0, 0, 0);
 	SetS3DVertex(vFieldRemove[1][0][0], 6.9f, 0.1f, 7.7f, 1.3f, 0, 1, 0, 0, 0, 0);
@@ -237,7 +242,7 @@ void Materials::SetActiveVertices(int three_columns, int not_separate_pzones) {
 	vActiveGrave = &vFieldGrave[not_separate_pzones][three_columns];
 	vActiveRemove = &vFieldRemove[not_separate_pzones][three_columns];
 	vActiveSkill = &vSkillZone[not_separate_pzones][three_columns];
-	vActivePowers = &vFieldExtra[three_columns];
+	vActivePowers = &vFieldPowers[three_columns];
 }
 
 }

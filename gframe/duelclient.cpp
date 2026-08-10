@@ -1751,8 +1751,12 @@ int DuelClient::ClientAnalyze(const uint8_t* msg, uint32_t len) {
 					mainGame->dField.grave_act[pcard->controler] = true;
 				else if (pcard->location == LOCATION_REMOVED)
 					mainGame->dField.remove_act[pcard->controler] = true;
-				else if (pcard->location == LOCATION_EXTRA)
-					mainGame->dField.extra_act[pcard->controler] = true;
+				else if (pcard->location == LOCATION_EXTRA) {
+					if(pcard->type & TYPE_POWER)
+						mainGame->dField.powers_act[pcard->controler] = true;
+					else
+						mainGame->dField.extra_act[pcard->controler] = true;
+				}
 			}
 		}
 		mainGame->dField.attackable_cards.clear();
@@ -1824,7 +1828,10 @@ int DuelClient::ClientAnalyze(const uint8_t* msg, uint32_t len) {
 				mainGame->dField.remove_act[pcard->controler] = true;
 				break;
 			case LOCATION_EXTRA:
-				mainGame->dField.extra_act[pcard->controler] = true;
+				if(pcard->type & TYPE_POWER)
+					mainGame->dField.powers_act[pcard->controler] = true;
+				else
+					mainGame->dField.extra_act[pcard->controler] = true;
 				break;
 			case LOCATION_SZONE: {
 				if((pcard->type & TYPE_PENDULUM) && !pcard->equipTarget && pcard->sequence == mainGame->dInfo.GetPzoneIndex(0))
@@ -1908,8 +1915,12 @@ int DuelClient::ClientAnalyze(const uint8_t* msg, uint32_t len) {
 					mainGame->dField.grave_act[pcard->controler] = true;
 				else if (pcard->location == LOCATION_REMOVED)
 					mainGame->dField.remove_act[pcard->controler] = true;
-				else if (pcard->location == LOCATION_EXTRA)
-					mainGame->dField.extra_act[pcard->controler] = true;
+				else if (pcard->location == LOCATION_EXTRA) {
+					if(pcard->type & TYPE_POWER)
+						mainGame->dField.powers_act[pcard->controler] = true;
+					else
+						mainGame->dField.extra_act[pcard->controler] = true;
+				}
 			}
 		}
 		std::lock_guard<epro::mutex> lock(mainGame->gMutex);
@@ -2182,8 +2193,12 @@ int DuelClient::ClientAnalyze(const uint8_t* msg, uint32_t len) {
 					mainGame->dField.grave_act[pcard->controler] = true;
 				else if(info.location == LOCATION_REMOVED)
 					mainGame->dField.remove_act[pcard->controler] = true;
-				else if(info.location == LOCATION_EXTRA)
-					mainGame->dField.extra_act[pcard->controler] = true;
+				else if(info.location == LOCATION_EXTRA) {
+					if(pcard->type & TYPE_POWER)
+						mainGame->dField.powers_act[pcard->controler] = true;
+					else
+						mainGame->dField.extra_act[pcard->controler] = true;
+				}
 				else if(info.location == LOCATION_OVERLAY)
 					panelmode = true;
 			}
@@ -4108,6 +4123,7 @@ int DuelClient::ClientAnalyze(const uint8_t* msg, uint32_t len) {
 		MatchPile(mainGame->dField.deck[player], mcount, LOCATION_DECK);
 		MatchPile(mainGame->dField.hand[player], hcount, LOCATION_HAND);
 		MatchPile(mainGame->dField.extra[player], ecount, LOCATION_EXTRA);
+		mainGame->dField.RefreshPowers(player);
 		mainGame->dField.extra_p_count[player] = pcount;
 		//
 		if(!mainGame->dInfo.isCatchingUp) {
