@@ -48,8 +48,10 @@ engine so it works online, in single-player and in replays.
   (like any cost, even if the chain is later negated).
 * A new protocol message **`MSG_POWER_UPDATE` (191)** carries `(pips0, pips1)`
   and is sent at each round start and after every activation; the client shows
-  the current pips as `n / 5` beside each player's Powers pile
-  (`Game::DrawPowerPips`, color from `DUELFIELD_POWER_PIPS`).
+  the current pips as 5 visual pips (filled = current, hollow = remaining)
+  beside each player's Powers pile
+  (`Game::DrawPowerPips`, filled color from `DUELFIELD_POWER_PIPS`,
+  hollow from `DUELFIELD_POWER_PIPS_EMPTY`).
 * Power Cards live in the Powers pile (engine-side `LOCATION_EXTRA`), outside the
   activation range of a normal ACTIVATE effect, so `card::add_effect` /
   `apply_field_effect` / `cancel_field_effect` treat `TYPE_POWER` handlers as
