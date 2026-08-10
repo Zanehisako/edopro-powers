@@ -3665,7 +3665,9 @@ bool field::process(Processors::AddChain& arg) {
 		effect* peffect = clit.triggering_effect;
 		card* phandler = peffect->get_handler();
 		phandler->set_status(STATUS_ACT_FROM_HAND, phandler->current.location == LOCATION_HAND);
-		if(phandler->current.location == LOCATION_SZONE) {
+		if(phandler->is_power_card()) {
+			// power cards activate from the Powers pile and remain there
+		} else if(phandler->current.location == LOCATION_SZONE) {
 			change_position(phandler, nullptr, phandler->current.controler, POS_FACEUP, 0);
 		} else {
 			uint32_t zone = 0xff;

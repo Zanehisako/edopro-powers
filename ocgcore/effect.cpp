@@ -175,7 +175,10 @@ int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t negle
 					return FALSE;
 			}
 			// additional check for each location
-			if(handler->current.location == LOCATION_SZONE) {
+			if(handler->is_power_card()) {
+				// power cards activate from the Powers pile: no field slot required,
+				// no spell/trap set/activate constraints apply.
+			} else if(handler->current.location == LOCATION_SZONE) {
 				if(handler->is_position(POS_FACEUP))
 					return FALSE;
 				if(handler->equiping_target)
@@ -703,6 +706,8 @@ int32_t effect::get_speed() {
 	else if(type & (EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F))
 		return 2;
 	else if(type & EFFECT_TYPE_ACTIVATE) {
+		if(handler->is_power_card())
+			return 2; // power cards declare at free-chain timing, like Quick-Play/Trap speed
 		if(handler->data.type & TYPE_MONSTER)
 			return 0;
 		else if(handler->data.type & TYPE_SPELL) {

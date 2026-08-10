@@ -50,6 +50,13 @@ engine so it works online, in single-player and in replays.
   and is sent at each round start and after every activation; the client shows
   the current pips as `n / 5` beside each player's Powers pile
   (`Game::DrawPowerPips`, color from `DUELFIELD_POWER_PIPS`).
+* Power Cards live in the Powers pile (engine-side `LOCATION_EXTRA`), outside the
+  activation range of a normal ACTIVATE effect, so `card::add_effect` /
+  `apply_field_effect` / `cancel_field_effect` treat `TYPE_POWER` handlers as
+  always in range, indexing their effects into the free-chain activation list.
+  On activation a Power Card stays in the Powers pile (no `move_to_field`, no
+  `MSG_SELECT_PLACE`), and `effect::get_speed()` reports 2 so it is chainable at
+  free-chain timing like a Quick-Play/Trap.
 
 ## Phase 7 — script runtime & protocol fixes
 
@@ -137,5 +144,5 @@ dbb09f2f  Phase 2
 <latest>  Phase 7
 b65b3f2d  Phase 8 (ocgcore)
 1369dab5  Phase 8 (gframe)
-<latest>  Phase 8 (samples)
+93fba85f  Phase 8 (samples)
 ```

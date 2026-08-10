@@ -1732,6 +1732,7 @@ void card::apply_field_effect() {
 		return;
 	for (auto& it : field_effect) {
 		if (it.second->in_range(this)
+				|| is_power_card()
 				|| ((it.second->range & LOCATION_HAND) && (it.second->type & EFFECT_TYPE_TRIGGER_O) && !(it.second->code & EVENT_PHASE))) {
 			pduel->game_field->add_effect(it.second);
 		}
@@ -1746,6 +1747,7 @@ void card::cancel_field_effect() {
 		return;
 	for (auto& it : field_effect) {
 		if (it.second->in_range(this)
+				|| is_power_card()
 				|| ((it.second->range & LOCATION_HAND) && (it.second->type & EFFECT_TYPE_TRIGGER_O) && !(it.second->code & EVENT_PHASE))) {
 			pduel->game_field->remove_effect(it.second);
 		}
@@ -1877,6 +1879,7 @@ int32_t card::add_effect(effect* peffect) {
 	peffect->handler = this;
 	if((peffect->type & EFFECT_TYPE_FIELD)) {
 		if(peffect->in_range(this)
+			|| is_power_card()
 			|| (current.controler != PLAYER_NONE && ((peffect->range & LOCATION_HAND) && (peffect->type & EFFECT_TYPE_TRIGGER_O) && !(peffect->code & EVENT_PHASE))))
 			pduel->game_field->add_effect(peffect);
 	}
