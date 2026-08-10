@@ -19,19 +19,16 @@ CARDS = [
     # id, ot, alias, setcode, type, atk, def, level, race, attribute, category, name, desc
     (42000001, 0, 0, 0, SPELL, 0, 0, 0, 0, 0, 0,
      "Arcane Order",
-     "Power Card. During your Main Phase: reveal this card from your Power Deck "
-     "to target 1 Set Spell/Trap you control; that target can be activated this "
-     "turn as if your opponent had attacked it. You can only activate 1 Power "
-     "Card per turn."),
+     "Power Card. Power Cost 1. Activate only during your Main Phase: draw 1 "
+     "card."),
     (42000002, 0, 0, 0, SPELL, 0, 0, 0, 0, 0, 0,
      "Void Surge",
-     "Power Card. Banish 1 card from each player's Graveyard; if you banished a "
-     "Monster, draw 1 card. You can only activate 1 Power Card per turn."),
+     "Power Card. Power Cost 2. Activate only during your Main Phase: draw 2 "
+     "cards."),
     (42000003, 0, 0, 0, SPELL, 0, 0, 0, 0, 0, 0,
      "Temporal Shifter",
-     "Power Card. You can chain this card to any Normal Spell/Trap activation; "
-     "negate that card's effect, then place it on top of its owner's Deck. "
-     "You can only activate 1 Power Card per turn."),
+     "Power Card. Power Cost 3. Activate only during your Main Phase: gain "
+     "4000 LP."),
 ]
 
 def main():

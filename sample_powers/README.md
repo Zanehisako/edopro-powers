@@ -8,17 +8,17 @@ repository (see `../PowerCards.md`).
 | File                      | Role                                                    |
 |---------------------------|---------------------------------------------------------|
 | `powers_sample.cards.cdb` | SQLite card database with 3 Power Cards (`TYPE_POWER`)  |
-| `script/c42000001.lua`    | Sample Power Card #1 script (activation: draw 1)        |
-| `script/c42000002.lua`    | Sample Power Card #2 script (banish / draw)             |
-| `script/c42000003.lua`    | Sample Power Card #3 script (chain-negation)            |
+| `script/c42000001.lua`    | Sample Power Card #1 script (cost 1: draw 1)            |
+| `script/c42000002.lua`    | Sample Power Card #2 script (cost 2: draw 2)            |
+| `script/c42000003.lua`    | Sample Power Card #3 script (cost 3: gain 4000 LP)      |
 | `sample_powers_deck.ydk`  | A legal deck using the `#powers` deck section           |
 | `make_cards.py`           | Reproducible generator for the `.cdb`                   |
 
 The three cards:
 
-* `42000001` — **Arcane Order** (`TYPE_POWER|TYPE_SPELL`)
-* `42000002` — **Void Surge** (`TYPE_POWER|TYPE_SPELL`)
-* `42000003` — **Temporal Shifter** (`TYPE_POWER|TYPE_SPELL`)
+* `42000001` — **Arcane Order** (`TYPE_POWER|TYPE_SPELL`, Power Cost 1)
+* `42000002` — **Void Surge** (`TYPE_POWER|TYPE_SPELL`, Power Cost 2)
+* `42000003` — **Temporal Shifter** (`TYPE_POWER|TYPE_SPELL`, Power Cost 3)
 
 Power Cards are never monsters: they use the Spell flag plus the Power bit, so
 the engine treats them as non-monster cards while keeping them in the Powers
@@ -37,6 +37,13 @@ deck.
 Power cards are extra-deck-only: the engine moves them into the Extra Deck pile
 at the start of the Duel, where they are playable and counted separately
 ("P:n" is appended to the Extra marker on the battlefield).
+
+Activating a Power Card costs **Power Pips**. Player 1 starts with 0 pips and
+Player 2 with 1; each round (both players' turns) both players gain +1 pip up to
+a maximum of 5. Each Power Card declares its cost with `Effect:SetPowerCost(n)`
+(the sample cards cost 1, 2 and 3). The engine refuses and hides activations you
+cannot afford and deducts the pips when you activate a card; the current pips are
+shown as "n / 5" beside each Powers pile on the battlefield.
 
 ## Verifying the database
 

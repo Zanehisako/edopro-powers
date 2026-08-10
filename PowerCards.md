@@ -28,6 +28,28 @@ Cards** with its own chain rules.
 | 5 | client modes & config | `single_mode.cpp` (hand‑test loads power deck, `DUEL_ENABLE_POWERS`), online deck‑size defaults | ✅ |
 | 6 | sample cards & verification | `sample_powers/` (see below) | ✅ |
 | 7 | script runtime & protocol fixes | `ocgcore/libduel.cpp` (`Duel.GetReasonEffect` shim), `gframe/generic_duel.cpp` (`MSG_START` per‑player ordering), `script/constant.lua` + `script/utility.lua` shipped locally | ✅ |
+| 8 | power pip meter | `ocgcore` (pip counter, costs, `MSG_POWER_UPDATE`), `gframe` (meter UI, handler) | ✅ |
+
+## Phase 8 — power pip meter
+
+Power Cards are gated by a shared resource, **Power Pips**, enforced by the
+engine so it works online, in single-player and in replays.
+
+* Each player has a pip counter (`player_info.power_pips`). Player 1 starts with
+  **0**, Player 2 with **1** (going-second bonus). At the start of each new round
+  (the first player's next turn after both have taken one) both players gain
+  **+1**, up to a maximum of **5**.
+* A Power Card declares its cost in its script with
+  `Effect:SetPowerCost(n)` (default 1; the sample cards use 1/2/3).
+* The engine refuses any Power Card activation whose cost exceeds the activating
+  player's current pips (`effect::is_activateable` also reports such cards as
+  not activatable, so they are not offered to the player or the AI).
+* On activation (`AddChain`) the cost is deducted immediately and never refunded
+  (like any cost, even if the chain is later negated).
+* A new protocol message **`MSG_POWER_UPDATE` (191)** carries `(pips0, pips1)`
+  and is sent at each round start and after every activation; the client shows
+  the current pips as `n / 5` beside each player's Powers pile
+  (`Game::DrawPowerPips`, color from `DUELFIELD_POWER_PIPS`).
 
 ## Phase 7 — script runtime & protocol fixes
 
@@ -113,4 +135,7 @@ dbb09f2f  Phase 2
 1a369a21  Phase 5
 <latest>  Phase 6
 <latest>  Phase 7
+b65b3f2d  Phase 8 (ocgcore)
+1369dab5  Phase 8 (gframe)
+<latest>  Phase 8 (samples)
 ```

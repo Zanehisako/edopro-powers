@@ -1,25 +1,13 @@
 -- Sample Power Card #3: Temporal Shifter
--- Install reference script/c42000003.lua
+-- Generic test effect. Power Cost: 3.
 function c42000003.initial_effect(c)
-	local e = Effect.CreateEffect(c)
-	e:SetType(EFFECT_TYPE_QUICK_O)
-	e:SetCode(EVENT_CHAIN_ACTIVATING)
-	e:SetRange(LOCATION_EXTRA)
-	e:SetTarget(c42000003.target)
-	e:SetOperation(c42000003.operation)
-	c:RegisterEffect(e)
-end
-function c42000003.target(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk == 0 then
-		local re_ev = Duel.GetChainInfo(ev, CHAININFO_TRIGGERING_EFFECT)
-		return re_ev and re_ev:GetHandler():IsOnField()
-	end
-	return true
+	local e1 = Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetPowerCost(3)
+	e1:SetOperation(c42000003.operation)
+	c:RegisterEffect(e1)
 end
 function c42000003.operation(e, tp, eg, ep, ev, re, r, rp)
-	local info = Duel.GetChainInfo(ev, CHAININFO_TRIGGERING_EFFECT)
-	if info then
-		local tc = info:GetHandler()
-		Duel.SendtoDeck(tc, tc:GetControler(), SEQ_DECKSHUFFLE, REASON_EFFECT)
-	end
+	Duel.Recover(tp, 4000, REASON_EFFECT)
 end
