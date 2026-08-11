@@ -1256,6 +1256,10 @@ uint32_t field::get_extra_deck_types() const {
 	return TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK;
 }
 void field::add_effect(effect* peffect, uint8_t owner_player) {
+	// guard against double registration: power cards are indexed both from
+	// card::add_effect (is_power_card) and from apply_field_effect via add_card
+	if(effects.indexer.count(peffect))
+		return;
 	if (!peffect->handler) {
 		peffect->flag[0] |= EFFECT_FLAG_FIELD_ONLY;
 		peffect->handler = peffect->owner;
