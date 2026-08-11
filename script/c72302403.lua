@@ -1,45 +1,62 @@
 -- Swords of Revealing Light (72302403)
--- Normal Spell: All monsters your opponent controls are flipped face-up Defense Position.
--- They cannot declare an attack. Destroy this card during your 2nd Standby Phase after activation.
+-- Normal Spell: After this card's activation, it remains on the field, but you
+-- must destroy it during the End Phase of your opponent's 3rd turn. When this
+-- card is activated: If your opponent controls a face-down monster, flip all
+-- monsters they control face-up. While this card is face-up on the field, your
+-- opponent's monsters cannot declare an attack.
 function c72302403.initial_effect(c)
+	--Activate
 	local e1 = Effect.CreateEffect(c)
+	e1:SetCategory(CATEGORY_POSITION)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetTarget(c72302403.target)
 	e1:SetOperation(c72302403.activate)
+	c:RegisterEffect(e1)
+	--cannot declare an attack
+	local e2 = Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetCode(EFFECT_CANNOT_ATTACK_ANNOUNCE)
+	e2:SetRange(LOCATION_SZONE)
+	e2:SetTargetRange(0, LOCATION_MZONE)
+	c:RegisterEffect(e2)
+	--remain on the field after activation
+	local e3 = Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetCode(EFFECT_REMAIN_FIELD)
+	c:RegisterEffect(e3)
+end
+function c72302403.target(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk == 0 then return true end
+	local c = e:GetHandler()
+	c:SetTurnCounter(0)
+	local sg = Duel.GetMatchingGroup(Card.IsFacedown, tp, 0, LOCATION_MZONE, nil)
+	Duel.SetOperationInfo(0, CATEGORY_POSITION, sg, sg:GetCount(), 0, 0)
+	--self destroy during the End Phase of your opponent's 3rd turn
+	local e1 = Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_CONTINUOUS)
+	e1:SetCode(EVENT_PHASE + PHASE_END)
+	e1:SetCountLimit(1)
+	e1:SetRange(LOCATION_SZONE)
+	e1:SetCondition(c72302403.descon)
+	e1:SetOperation(c72302403.desop)
+	e1:SetReset(RESET_EVENT + RESETS_STANDARD)
 	c:RegisterEffect(e1)
 end
 function c72302403.activate(e, tp, eg, ep, ev, re, r, rp)
-	local c = e:GetHandler()
-	local g = Duel.GetMatchingGroup(Card.IsFaceup, tp, 0, LOCATION_MZONE, nil)
-	Duel.ChangePosition(g, POS_FACEUP_DEFENSE)
-	local e1 = Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_CANNOT_ATTACK_ANNOUNCE)
-	e1:SetTargetRange(0, 1)
-	e1:SetTarget(c72302403.atkfilter)
-	e1:SetReset(RESET_EVENT + RESETS_STANDARD)
-	Duel.RegisterEffect(e1, tp)
-	c:RegisterFlagEffect(72302403, RESET_EVENT + RESETS_STANDARD, 0, 0)
-	c:SetTurnCounter(0)
-	local e2 = Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EVENT_PHASE_START)
-	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e2:SetTargetRange(1, 0)
-	e2:SetCountLimit(1)
-	e2:SetOperation(c72302403.turnop)
-	e2:SetReset(RESET_PHASE + PHASE_END, 2)
-	c:RegisterEffect(e2)
+	local sg = Duel.GetMatchingGroup(Card.IsFacedown, tp, 0, LOCATION_MZONE, nil)
+	if sg:GetCount() > 0 then
+		Duel.ChangePosition(sg, POS_FACEUP_ATTACK, POS_FACEUP_ATTACK, POS_FACEUP_DEFENSE, POS_FACEUP_DEFENSE)
+	end
 end
-function c72302403.atkfilter(e, c)
-	return c:IsFaceup()
+function c72302403.descon(e, tp, eg, ep, ev, re, r, rp)
+	return Duel.GetTurnPlayer() ~= tp
 end
-function c72302403.turnop(e, tp, eg, ep, ev, re, r, rp)
+function c72302403.desop(e, tp, eg, ep, ev, re, r, rp)
 	local c = e:GetHandler()
-	local ct = c:GetTurnCounter()
-	ct = ct + 1
+	local ct = c:GetTurnCounter() + 1
 	c:SetTurnCounter(ct)
-	if ct >= 2 then
-		Duel.Destroy(c, REASON_EFFECT)
+	if ct >= 3 then
+		Duel.Destroy(c, REASON_RULE)
 	end
 end
