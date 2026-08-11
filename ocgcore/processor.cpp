@@ -4359,6 +4359,18 @@ bool field::process(Processors::SolveChain& arg) {
 			if(!(*rm)->is_status(STATUS_LEAVE_CONFIRMED))
 				core.leave_confirmed.erase(rm);
 		}
+		card_set power_targets;
+		for(auto cit = core.leave_confirmed.begin(); cit != core.leave_confirmed.end();) {
+			card* pcard = *cit++;
+			if(pcard->is_power_card()) {
+				power_targets.insert(pcard);
+				core.leave_confirmed.erase(pcard);
+			}
+		}
+		// used power cards never go to the graveyard: they are permanently
+		// removed from the game for the rest of the duel
+		if(power_targets.size())
+			send_to(power_targets, nullptr, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_REMOVED, 0, POS_FACEUP);
 		if(core.leave_confirmed.size())
 			send_to(core.leave_confirmed, nullptr, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		return FALSE;

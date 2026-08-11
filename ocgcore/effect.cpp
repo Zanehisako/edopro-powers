@@ -176,8 +176,10 @@ int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t negle
 			}
 			// additional check for each location
 			if(handler->is_power_card()) {
-				// power cards activate from the Powers pile: no field slot required,
-				// no spell/trap set/activate constraints apply.
+				// power cards only activate from the Powers pile (engine-side LOCATION_EXTRA):
+				// no field slot required, no spell/trap set/activate constraints apply.
+				if(handler->current.location != LOCATION_EXTRA)
+					return FALSE;
 			} else if(handler->current.location == LOCATION_SZONE) {
 				if(handler->is_position(POS_FACEUP))
 					return FALSE;

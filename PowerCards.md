@@ -56,9 +56,13 @@ engine so it works online, in single-player and in replays.
   activation range of a normal ACTIVATE effect, so `card::add_effect` /
   `apply_field_effect` / `cancel_field_effect` treat `TYPE_POWER` handlers as
   always in range, indexing their effects into the free-chain activation list.
-  On activation a Power Card stays in the Powers pile (no `move_to_field`, no
-  `MSG_SELECT_PLACE`), and `effect::get_speed()` reports 2 so it is chainable at
-  free-chain timing like a Quick-Play/Trap.
+  On activation a Power Card stays in the Powers pile while its effect resolves
+  (no `move_to_field`, no `MSG_SELECT_PLACE`), and `effect::get_speed()` reports 2
+  so it is chainable at free-chain timing like a Quick-Play/Trap. A Power Card is
+  only activatable from the Powers pile (`effect::is_activateable` requires the
+  handler to be on engine-side `LOCATION_EXTRA`); once its chain resolves it is
+  permanently removed from the game (banished to `LOCATION_REMOVED`) — it never
+  goes to the graveyard and can never be activated again for the rest of the duel.
 
 ## Phase 7 — script runtime & protocol fixes
 
