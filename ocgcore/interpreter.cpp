@@ -98,7 +98,11 @@ void interpreter::register_card(card* pcard) {
 		// decks containing unscripted regular cards still work.
 		luaL_checkstack(current_state, 2, nullptr);
 		char code_buf[32];
-		const char* class_name = format_to(code_buf, "c%u", pcard->data.code);
+		const char* class_name;
+		if(pcard->data.alias && (pcard->data.alias < pcard->data.code + 10) && (pcard->data.code < pcard->data.alias + 10))
+			class_name = format_to(code_buf, "c%u", pcard->data.alias);
+		else
+			class_name = format_to(code_buf, "c%u", pcard->data.code);
 		lua_getglobal(current_state, class_name);
 		lua_getfield(current_state, -1, "initial_effect");
 		const bool has_initial_effect = lua_isfunction(current_state, -1);
