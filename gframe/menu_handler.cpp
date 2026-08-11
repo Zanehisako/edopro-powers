@@ -314,7 +314,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				const auto selected = mainGame->cbDeckSelect->getSelected();
 				if(selected == -1)
 					break;
-				if(!mainGame->deckBuilder.SetCurrentDeckFromFile(Utils::ToPathString(mainGame->cbDeckSelect->getItem(selected)), false,
+				if(!mainGame->deckBuilder.SetCurrentDeckFromFile(Utils::ToPathString(mainGame->cbDeckSelect->getItem(selected)), true,
 																 mainGame->dInfo.HasFieldFlag(DUEL_EXTRA_DECK_RITUAL) ? RITUAL_LOCATION::EXTRA : RITUAL_LOCATION::MAIN))
 					break;
 				UpdateDeck();

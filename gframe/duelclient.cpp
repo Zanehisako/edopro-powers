@@ -523,7 +523,7 @@ void DuelClient::HandleSTOCPacketLanAsync(const std::vector<uint8_t>& data) {
 				break;
 			}
 			case DeckError::POWERCOUNT: {
-				text = epro::sprintf(gDataManager->GetSysString(1418), sidemax, curcount);
+				text = epro::sprintf(gDataManager->GetSysString(1428), sidemax, curcount);
 				break;
 			}
 			case DeckError::FORBTYPE: {

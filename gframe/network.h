@@ -126,9 +126,9 @@ struct DeckError {
 	};
 	DERR_TYPE type = DERR_TYPE::NONE;
 	struct {
-		uint32_t current;
-		uint32_t minimum;
-		uint32_t maximum;
+		uint32_t current = 0;
+		uint32_t minimum = 0;
+		uint32_t maximum = 0;
 	} count;
 	uint32_t code;
 	DeckError(DERR_TYPE _type) :type(_type) {};
