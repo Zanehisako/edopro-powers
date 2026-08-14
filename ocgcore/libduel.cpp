@@ -1996,6 +1996,15 @@ LUA_STATIC_FUNCTION(GetChainInfo) {
 			}
 			break;
 		}
+		case CHAININFO::TRIGGERING_LINK:
+			lua_pushinteger(L, ch->triggering_state.link);
+			break;
+		case CHAININFO::TRIGGERING_LSCALE:
+			lua_pushinteger(L, ch->triggering_state.lscale);
+			break;
+		case CHAININFO::TRIGGERING_RSCALE:
+			lua_pushinteger(L, ch->triggering_state.rscale);
+			break;
 		default:
 			lua_error(L, "Passed invalid CHAININFO flag.");
 		}

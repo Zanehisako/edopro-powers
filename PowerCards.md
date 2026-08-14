@@ -132,7 +132,8 @@ Fixes (verified headless against the built core):
 
 ### Phase 6 — samples & verification
 - `sample_powers/` ships a regenerable `.cdb` (verified rows carry `TYPE_POWER`),
-  three sample scripts, a legal `#powers` .ydk deck, and this readme.
+  20 power card scripts covering costs 1 through 5, card art in `pics/`,
+  a legal `#powers` .ydk deck, and this readme.
 
 ## Repository layout of the fork
 
